@@ -23,14 +23,23 @@ python3 server/server.py
 
 Open http://localhost:8000. Others on the same network open `http://<this computer's address>:8000`.
 
-GitHub Pages cannot run the server. To have accounts on the public site, host `server/server.py` somewhere,
-then:
+GitHub Pages cannot run the server. For accounts on the public site, the server runs on a separate host
+(PythonAnywhere, free plan, which keeps the database file between restarts):
 
-```
-python3 tools/site.py server https://<the server's address>
-```
+1. On the host, clone this repository.
+2. Add a web app (manual configuration) and point its WSGI file at `server/wsgi.py`:
+   ```
+   import sys
+   sys.path.insert(0, '/home/<username>/lox-visualizer/server')
+   from wsgi import application
+   ```
+3. Here, tell the page where the server is, then commit and push:
+   ```
+   python3 tools/site.py server https://<username>.pythonanywhere.com
+   ```
 
-and on the server set `AYPR_ORIGIN=https://milindmmarathe.github.io`.
+`server/wsgi.py` allows requests from `https://milindmmarathe.github.io`. If the page moves to another address,
+set `AYPR_ORIGIN` on the host to the new one.
 
 ## Change the name of the site
 
