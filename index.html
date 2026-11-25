@@ -613,10 +613,42 @@ html body #rinfo{margin-top:14px}
 /* tour */
 html body:not([data-view=l]) #tourb{display:none}
 html body #tourb{width:36px;padding:0;font-weight:700}
-html body .tour-hole{position:fixed;z-index:90;border-radius:12px;box-shadow:0 0 0 3px var(--a),0 0 0 9999px rgba(8,18,28,.55);pointer-events:none;transition:all .25s ease}
-html body .tour{position:fixed;z-index:91;background:var(--pn);color:var(--ink);border-radius:14px;padding:14px 16px;box-shadow:var(--sh2);font-size:17px;line-height:1.5}
-html body .tour p{margin:0 0 8px}
-html body .tour .ctl{display:flex;justify-content:space-between;gap:8px;margin:8px 0 0}
+html body .tour-veil{position:fixed;inset:0;z-index:89;background:transparent}
+html body .tour-hole{position:fixed;z-index:90;border-radius:12px;box-shadow:0 0 0 3px var(--a),0 0 0 9999px rgba(8,18,28,.6);pointer-events:none;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease}
+html body .tour{position:fixed;z-index:91;background:var(--pn);color:var(--ink);border:1px solid var(--ln);border-radius:16px;padding:12px 16px 16px;box-shadow:var(--sh2);font-size:17px;line-height:1.5}
+html body .tour .th{display:flex;align-items:center;justify-content:space-between;gap:8px}
+html body .tour .th .dm{margin:0;font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--dim)}
+html body .tour .tx{width:40px;height:40px;margin-right:-8px;border:0;border-radius:10px;background:transparent;color:var(--dim);font-size:26px;line-height:1;cursor:pointer}
+html body .tour .tx:hover{background:var(--ab);color:var(--ink)}
+html body .tour h3{margin:0 0 6px;font-size:20px;line-height:1.3;color:var(--ink)}
+html body .tour p{margin:0}
+html body .tour .tbar{height:4px;border-radius:2px;background:var(--ln);margin:2px 0 12px;overflow:hidden}
+html body .tour .tbar i{display:block;height:100%;background:var(--a);border-radius:2px;transition:width .25s}
+html body .tour h3{display:flex;align-items:center;gap:10px}
+html body .tour .ti{flex:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;background:var(--ab);font-size:20px;line-height:1}
+html body .tour .tw{margin:0 0 8px}
+html body .tour .ty{margin:0;padding:8px 12px;border-left:3px solid var(--a);background:var(--ab);border-radius:0 8px 8px 0;font-size:16px}
+html body .tour .ty b{color:var(--ink)}
+html body .tour.mid{text-align:center;padding:14px 22px 20px}
+html body .tour.mid h3{flex-direction:column;gap:8px;font-size:22px;margin:4px 0 8px}
+html body .tour.mid .ti{width:56px;height:56px;border-radius:16px;font-size:30px}
+html body .tour.mid .ty{border:0;background:transparent;padding:0;color:var(--dim)}
+html body .tour-hole.off{box-shadow:0 0 0 9999px rgba(8,18,28,.6)}
+html body .tour .ctl{display:flex;justify-content:space-between;gap:10px;margin:14px 0 0}
+html body .tour .ctl .btn{min-height:44px}
+html body .tour.wide{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:20px;padding:8px 16px 12px;font-size:16px;line-height:1.45}
+html body .tour.wide .th,html body .tour.wide .tbar{grid-column:1/-1}
+html body .tour.wide .tbar{margin:0 0 6px}
+html body .tour.wide .tx{width:34px;height:34px}
+html body .tour.wide h3{grid-column:1;font-size:18px;margin:0 0 4px}
+html body .tour.wide .ti{width:28px;height:28px;font-size:16px}
+html body .tour.wide #tourd{grid-column:1}
+html body .tour.wide .tw{margin:0 0 4px}
+html body .tour.wide .ty{padding:4px 10px;font-size:15px}
+html body .tour.wide .ctl{grid-column:2;grid-row:3/5;align-self:end;margin:0}
+html body .tour.nudge{animation:tnudge .3s}
+@keyframes tnudge{30%{transform:translateY(-6px)}70%{transform:translateY(2px)}}
+@media(prefers-reduced-motion:reduce){html body .tour-hole{transition:none}html body .tour.nudge{animation:none}}
 /* ---- declutter pass ---- */
 html body .top small#prog,html body .hx .stk{display:none}
 html body #tourb{width:auto;padding:0 14px}
@@ -924,6 +956,8 @@ html body .drawer nav.rail .dn::after{content:none}
 html body .drawer nav.rail .rt{flex:1;min-width:0;text-align:left}
 html body .drawer nav.rail .rt small{display:block;white-space:normal}
 html body .drawer nav.rail .rh{display:block}
+/* Settings menu on tablets: open towards the left, from under the button at the right of the header, so it stays on screen */
+@media(min-width:601px){html body .mn .pop{left:auto;right:0;max-width:calc(100vw - 24px)}}
 
 </style>
 </head>
@@ -2343,26 +2377,90 @@ function wChecks(c){const o=[];if(c.want)o.push({id:'out',say:c.want.length?'Pri
 function wResult(c,src,R){const r={};const ran=!!(P&&R&&R.log.length&&!R.err);r.ok=ran;if(c.want)r.out=ran&&R.out.join('\n')===c.want.join('\n');(c.need||[]).forEach((n,j)=>{r['n'+j]=new RegExp(n[0]).test(src)});return r}
 
 // ==== src/ui/tour.js
-// UI. A short tour of the topic screen, shown once on the first Watch step and again from the "?" button.
-// Each stop lights up one part of the screen and says what it is for in one or two sentences.
+// UI. The tour: a map of the site. It runs once on the first Watch step, and again from Settings.
+// Part 1 shows the main sections. Part 2 shows the parts of a topic screen.
+// Each stop lights up one part, says what it is, and says why it is there.
+// The tour runs on the Watch step, because that screen has every part it talks about.
+const TOURP=['Around the site','On a topic'];
 const TOUR=[
- ['#vw','These tabs take you everywhere: the course, practice, tests, reference and your progress.'],
- ['#phs','Each topic has four steps. Read explains the idea. Watch, Try and Check happen on this screen.'],
- ['#cp','These are the cards of this step. Do what the card says, then press Continue.'],
- ['#alls','All topics opens the list of the 15 topics. You can jump to any of them.'],
- ['.wcode','This is your code. You can change it. Click any line to see what it does.'],
- ['#ctl','Run shows the result. Next and Back go through the run one scene at a time.'],
- ['.wmach','This shows what the computer does at each scene, and why. The tabs show your code in other ways.'],
- ['#scr','The screen shows what your program prints.']];
-function tour(){if(document.body.dataset.view!=='l')return;let k=0;const sh=document.createElement('div'),bx=document.createElement('div');sh.className='tour-hole';bx.className='tour';bx.setAttribute('role','dialog');bx.setAttribute('aria-label','Tour of the lesson screen');document.body.append(sh,bx);
- const end=()=>{sh.remove();bx.remove();removeEventListener('resize',place);try{Store.put('tour','1')}catch(e){}};
- const place=()=>{const [sel,t]=TOUR[k],el=$(sel);if(!el||!el.offsetParent){k++;if(k>=TOUR.length)return end();return place()}
-  el.scrollIntoView({block:'nearest'});const r=el.getBoundingClientRect(),pad=6;
-  Object.assign(sh.style,{left:r.left-pad+'px',top:r.top-pad+'px',width:r.width+pad*2+'px',height:r.height+pad*2+'px'});
-  bx.innerHTML=`<p class="dm">${k+1} of ${TOUR.length}</p><p>${esc(t)}</p><div class="ctl"><button class="btn" type="button" data-x>Skip the tour</button><button class="btn pri" type="button" data-n>${k===TOUR.length-1?'Start learning':'Next'}</button></div>`;
-  const bw=Math.min(340,innerWidth-24),below=r.bottom+12+180<innerHeight;bx.style.width=bw+'px';bx.style.left=Math.max(12,Math.min(innerWidth-bw-12,r.left))+'px';bx.style.top=(below?r.bottom+12:Math.max(12,r.top-12-bx.offsetHeight))+'px';
-  bx.querySelector('[data-x]').onclick=end;bx.querySelector('[data-n]').onclick=()=>{k++;if(k>=TOUR.length)end();else place()};bx.querySelector('[data-n]').focus()};
- addEventListener('resize',place);place()}
+ {c:1,i:'\u{1F5FA}️',t:'A map of this site',w:'This tour shows what each part of the site is, and why it is there.',y:'It takes about two minutes. Use the buttons or the arrow keys.'},
+ {s:'#vw [data-v=s]',p:0,i:'\u{1F3E0}',t:'Home',w:'Your starting page. It lists all 15 topics and the extra activities.',y:'Come here when you are not sure what to do next.'},
+ {s:'#vw [data-v=l]',p:0,i:'\u{1F4D8}',t:'Learn',w:'The course: 15 topics, each about one idea.',y:'Each topic builds on the ones before it, so going in order is easiest.'},
+ {s:'#vw [data-v=p]',p:0,i:'✏️',t:'Practice',w:'Write any program and watch it run. There are 11 samples to start from.',y:'Your own programs show whether you really understand an idea.'},
+ {s:'#vw [data-v=t]',p:0,i:'\u{1F4DD}',t:'Tests',w:'Four quiz tests and coding tests, one for each group of topics.',y:'They show what you know. The answers come only at the end.'},
+ {s:'#vw [data-v=g]',p:0,i:'\u{1F4D6}',t:'Reference',w:'The Lox cheat sheet, every instruction, and the glossary.',y:'Look here when you forget a word or a rule.'},
+ {s:'#vw [data-v=u]',p:0,i:'\u{1F464}',t:'Profile',w:'Your XP, stars, test scores, badges and certificate.',y:'It shows how far you have come. Finish all 15 topics to get the certificate.'},
+ {s:'#xpb',p:0,i:'⭐',t:'XP',w:'You earn XP for every card you finish. Tap it to open your Profile.',y:'It is a quick count of the work you have done.'},
+ {s:'.mn summary',p:0,i:'⚙️',t:'Settings',w:'Change the colours, save your progress to a file, or see this tour again.',y:'A saved file lets you move your progress to another computer.'},
+ {s:'#phs',p:1,i:'\u{1FA9C}',t:'Four steps',w:'Read explains the idea. Watch shows it running. Try lets you change code. Check asks questions.',y:'First you see an idea, then you use it, then you test yourself.'},
+ {s:'#alls',p:1,i:'☰',t:'All topics',w:'Opens the list of all 15 topics, with how much of each you have done.',y:'Jump to any topic, or go back to one you want to revise.'},
+ {s:'#cp',p:1,i:'\u{1F4AC}',t:'Cards',w:'The cards lead you through this step, one small task at a time. Press Continue when a card is done.',y:'Small steps are easier to follow and to remember.'},
+ {s:'#cph',p:1,i:'↔️',t:'Hide',w:'Hides the cards for a while. Show the cards brings them back.',y:'Your code and the machine then get the whole screen.'},
+ {s:'.wcode',p:1,i:'⌨️',t:'Your code',w:'You can change this code. Tap any line to see what it means.',y:'Changing code and seeing what happens is how you test an idea.'},
+ {s:'#ctl',p:1,i:'▶️',t:'Run controls',w:'Run runs the whole program. Next and Back move one scene at a time. Play scenes moves by itself.',y:'Going slowly lets you see each thing the computer does.'},
+ {s:'#mtabs',p:1,i:'\u{1F5C2}️',t:'Four views',w:'Picture draws the machine. Tokens shows the words found in your code. Instructions shows what the compiler wrote. Steps lists every step.',y:'Each view shows the same run in a different way.'},
+ {s:'.wmach',p:1,i:'\u{1F50D}',t:'The machine',w:'It shows the pile (the stack) and the instructions, and what changes at each scene, with the reason.',y:'This is the part you normally cannot see after you press Run.'},
+ {s:'#scr',p:1,i:'\u{1F5A5}️',t:'Screen',w:'Shows what your program prints.',y:'Compare it with what you expected. A surprise means there is something to learn.'},
+ {c:1,i:'\u{1F389}',t:'That is the whole map',w:'Start with the card on the left, and press Continue when it is done.',y:'You can see this tour again from Settings.'}];
+let TOURON=false;
+function tour(){
+ if(TOURON)return;
+ // Not on the Watch step: go there first, then start when its screen is ready.
+ if(document.body.dataset.view!=='l'||!$('.wcode')||!$('#ctl')){
+  const ok=typeof ci==='number'&&CH[ci]&&!CH[ci].pg,c=ok?CH[ci]:CH.find(x=>!x.pg);if(!c)return;
+  location.hash='#/topic/'+c.id+'/watch';let n=0;
+  const wait=()=>{if($('.wcode')&&$('#ctl'))return setTimeout(tour,300);if(++n<40)setTimeout(wait,100)};return setTimeout(wait,100)}
+ const seen=s=>{const e=$(s);return e&&e.getClientRects().length>0};
+ const stops=TOUR.filter(x=>x.c||seen(x.s)),N=stops.length;if(N<3)return;
+ const inPart=stops.map(x=>x.c?0:stops.filter(y=>y.p===x.p).indexOf(x)+1),ofPart=p=>stops.filter(y=>y.p===p).length;
+ TOURON=true;let k=0,raf=0;const back=document.activeElement;
+ const mk=c=>{const d=document.createElement('div');d.className=c;return d};
+ const veil=mk('tour-veil'),sh=mk('tour-hole'),bx=mk('tour');
+ bx.setAttribute('role','dialog');bx.setAttribute('aria-modal','true');bx.setAttribute('aria-labelledby','tourt');bx.setAttribute('aria-describedby','tourd');
+ document.body.append(veil,sh,bx);
+ const end=()=>{TOURON=false;cancelAnimationFrame(raf);veil.remove();sh.remove();bx.remove();removeEventListener('resize',later);removeEventListener('scroll',later,true);document.removeEventListener('keydown',key,true);
+  try{Store.put('tour','1')}catch(e){}if(back&&back.focus&&document.contains(back))back.focus()};
+ const go=d=>{k=Math.max(0,k+d);if(k>=N)return end();draw()};
+ const key=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();end()}
+  else if(e.key==='ArrowRight'){e.preventDefault();go(1)}else if(e.key==='ArrowLeft'&&k){e.preventDefault();go(-1)}
+  else if(e.key==='Tab'){const f=[...bx.querySelectorAll('button')];if(!f.length)return;const i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}};
+ const later=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>place(false))};
+ // Fill the box for this stop, then place it.
+ const draw=()=>{const x=stops[k],first=k===0,last=k===N-1;
+  const head=x.c?(first?'Quick tour':'Done'):`${TOURP[x.p]} · ${inPart[k]} of ${ofPart(x.p)}`;
+  bx.classList.toggle('mid',!!x.c);
+  bx.innerHTML=`<div class="th"><p class="dm">${head}</p><button class="tx" type="button" data-x aria-label="Close the tour">×</button></div>
+<div class="tbar" aria-hidden="true"><i style="width:${Math.round((k+1)/N*100)}%"></i></div>
+<h3 id="tourt"><span class="ti" aria-hidden="true">${x.i}</span>${esc(x.t)}</h3>
+<div id="tourd"><p class="tw">${esc(x.w)}</p><p class="ty">${x.c?'':'<b>Why: </b>'}${esc(x.y)}</p></div>
+<div class="ctl">${first?'<button class="btn" type="button" data-x>Not now</button>':'<button class="btn" type="button" data-b>Back</button>'}<button class="btn pri" type="button" data-n>${first?'Start the tour':last?'Start learning':'Next'}</button></div>`;
+  bx.querySelectorAll('[data-x]').forEach(b=>b.onclick=end);const b=bx.querySelector('[data-b]');if(b)b.onclick=()=>go(-1);
+  bx.querySelector('[data-n]').onclick=()=>go(1);place(true);bx.querySelector('[data-n]').focus({preventScroll:true})};
+ // Put the light on the part, and the box where it does not cover that part.
+ const place=scroll=>{const x=stops[k],W=innerWidth,H=innerHeight;
+  if(x.c){const bw=Math.min(440,W-24);bx.style.width=bw+'px';bx.classList.remove('sheet','wide');sh.classList.add('off');
+   Object.assign(sh.style,{left:W/2+'px',top:H/2+'px',width:'0px',height:'0px'});
+   bx.style.left=(W-bw)/2+'px';bx.style.top=Math.max(12,(H-bx.offsetHeight)/2)+'px';return}
+  sh.classList.remove('off');const e=$(x.s);if(!e||!e.getClientRects().length)return;
+  const sheet=W<600||H<520,wide=sheet&&W>=600,top=$('header.top'),hh=top?top.getBoundingClientRect().bottom:0,inTop=!!e.closest('header.top');
+  const bw=sheet?(wide?Math.min(720,W-24):W-24):Math.min(400,W-24);bx.style.width=bw+'px';bx.classList.toggle('sheet',sheet);bx.classList.toggle('wide',wide);const bh=bx.offsetHeight;
+  const lo=inTop?0:hh+12,hi=sheet?H-bh-24:H-12,pad=6;   // the part must be seen between lo and hi
+  const rect=()=>e.getBoundingClientRect();
+  if(scroll&&inTop)e.scrollIntoView({block:'nearest',inline:'nearest'});   // a tab hidden off the side of the header row
+  let r=rect();
+  if(scroll&&!inTop&&(r.top<lo||r.bottom>hi)){scrollBy({top:r.top-lo-(r.height<hi-lo?Math.min(40,(hi-lo-r.height)/2):0),behavior:'instant'});r=rect()}
+  // A free spot next to the part: below, above, right or left. None on a small screen: the box sits at the bottom.
+  const spot=r=>{const T=r.top-pad,B=r.bottom+pad,side=y=>Math.max(lo,Math.min(H-bh-12,y));
+   if(B+12+bh<H-12)return[r.left,B+12];if(T-12-bh>Math.max(12,inTop?12:hh))return[r.left,T-12-bh];
+   if(r.right+pad+12+bw<W-12)return[r.right+pad+12,side(r.top)];if(r.left-pad-12-bw>12)return[r.left-pad-12-bw,side(r.top)];return null};
+  let at=sheet?null:spot(r);
+  if(!sheet&&!at&&scroll&&!inTop&&r.top>lo+2){scrollBy({top:r.top-lo,behavior:'instant'});r=rect();at=spot(r)}
+  const dock=!at,T=Math.max(inTop?2:lo-pad,r.top-pad),B=Math.min(dock?H-bh-18:H-4,r.bottom+pad);
+  Object.assign(sh.style,{left:Math.max(2,r.left-pad)+'px',top:T+'px',width:Math.min(W-4,r.right+pad)-Math.max(2,r.left-pad)+'px',height:Math.max(0,B-T)+'px'});
+  const bxX=dock?(sheet&&!wide?12:(W-bw)/2):at[0],bxY=dock?H-bh-12:at[1];
+  bx.style.left=Math.max(12,Math.min(W-bw-12,bxX))+'px';bx.style.top=Math.max(12,bxY)+'px'};
+ veil.onclick=()=>{bx.classList.remove('nudge');void bx.offsetWidth;bx.classList.add('nudge')};
+ document.addEventListener('keydown',key,true);addEventListener('resize',later);addEventListener('scroll',later,true);draw()}
 
 // ==== src/ui/lesson.js
 // UI. The topic screen for Watch, Try and Check: the card pane on the left, the workspace on the right. Read is in ui/topic.js. The frame never changes between cards,
@@ -3540,7 +3638,7 @@ document.addEventListener('click',e=>{const d=document.querySelector('.mn');if(d
 $('#sv').onclick=()=>{award('safe');if($('#src')&&!cardProg)codes[ci]=$('#src').value;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({v:3,done:[...done],badges:[...earned],codes,lex:LEX,pre:PRE,theme:document.documentElement.dataset.theme,lessons:LPR,xp:XP,streak:STREAK,lastL})],{type:'application/json'}));a.download='after-you-press-run-save.json';a.click()};
 $('#ld').onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());codes=o.codes||{};LEX=o.lex||{};mk();PRE=o.pre||'';done=new Set(o.done||[]);earned=new Set(o.badges||[...earned]);try{Store.put('done2',JSON.stringify([...done]));Store.put('badges',JSON.stringify([...earned]))}catch(x){}
  if(o.lessons){LPR=o.lessons;XP=o.xp||0;STREAK=o.streak||{d:'',n:0};saveLP()}if(o.lastL!==undefined){lastL=o.lastL;Store.put('lastL2',String(lastL))}lvl();progText();persist();if(o.theme)setT(o.theme);setView('l',lastL)}catch(x){alert('That file is not a save file from this page.')}};
-$('#tourb').onclick=()=>{$('.mn').open=false;if(document.body.dataset.view!=='l')setView('l');setTimeout(tour,300)};$('#xpb').onclick=()=>setView('u');$('#scrim').onclick=()=>drawer(false);$('#abl').onclick=e=>{e.preventDefault();setView('o')};
+$('#tourb').onclick=()=>{$('.mn').open=false;tour()};$('#xpb').onclick=()=>setView('u');$('#scrim').onclick=()=>drawer(false);$('#abl').onclick=e=>{e.preventDefault();setView('o')};
 let sn;
 try{sn=Store.raw('seen')}catch(e){}
 progText();
