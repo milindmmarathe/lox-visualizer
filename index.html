@@ -252,9 +252,7 @@ body .pred{padding:8px 14px}body .pred .lb{margin:0}body .pred .qq{font-size:17p
 .rcb small,.rc small,small{font-size:14px}
 .endc{text-align:left}
 @media(max-width:600px){.pop{position:fixed;left:12px;right:12px;top:64px;width:auto}.toast{right:12px;left:12px;bottom:88px;max-width:none}}
-@media(max-width:480px){body nav.rail{flex-wrap:wrap!important;overflow:visible!important;gap:5px!important}
- body nav.rail button{width:31px!important;height:31px!important;min-height:0!important;padding:0!important;font-size:14px!important}
- #atabs{display:flex;flex-wrap:wrap;max-width:100%}#atabs button{flex:1 1 auto}}
+@media(max-width:480px){#atabs{display:flex;flex-wrap:wrap;max-width:100%}#atabs button{flex:1 1 auto}}
 /* the left column never hides content in its own scroll box */
 body .lcol:has(details[open]){position:static!important;max-height:none!important;overflow:visible!important}
 .uh .ctl .btn{min-height:44px;padding:8px 16px;line-height:1.3}
@@ -306,7 +304,7 @@ html body nav.rail button[aria-current=true] .rn{border-color:var(--a);color:var
 html body nav.rail button.dn .rn{background:var(--a);border-color:var(--a);color:#fff}
 html body nav.rail button.dn{background:transparent;color:var(--dim)}
 html body nav.rail button.dn[aria-current=true]{background:var(--ab);color:var(--ink)}
-@media(max-width:999px){html body nav.rail{position:static;flex-direction:row;flex-wrap:wrap;gap:6px;margin-bottom:18px}html body nav.rail .rh,html body nav.rail .rt{display:none}html body nav.rail button{padding:0;width:auto;background:transparent}html body nav.rail .rn{width:36px;height:36px;font-size:15px}}
+/* The topic list lives only in the side drawer now; its phone layout is set in app.css. */
 /* cards and type */
 html body .card{background:var(--pn);border:1px solid var(--ln);border-radius:16px;box-shadow:var(--sh);padding:36px 40px;margin-bottom:24px}
 html body .card h2{font-size:34px;line-height:1.18;letter-spacing:-.02em;margin:0 0 10px}
@@ -911,6 +909,21 @@ html body .top .brand{flex:0 1 auto;min-width:0;overflow:hidden}
 html body .top .brand>div{min-width:0}
 html body .top .brand h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:700px){html body .top .brand{flex:1 1 0}}
+/* Drawer on small phones: full names always visible, long names wrap */
+html body .drawer .rt{min-width:0;line-height:1.3}
+html body .drawer .rpart{font:700 13px var(--f);letter-spacing:.06em;text-transform:uppercase;color:var(--dim);padding:14px 10px 6px}
+@media(max-width:420px){html body .drawer{width:min(340px,92vw);padding:12px 8px}html body .drawer nav.rail button{font-size:15px;gap:10px;padding:8px}}
+
+/* The drawer's topic list wins over every old rail rule in legacy.css, at every screen size */
+html body .drawer nav.rail{flex-direction:column;flex-wrap:nowrap;overflow:visible;gap:2px;margin:0;padding:0}
+html body .drawer nav.rail button{width:100%;height:auto;min-height:44px;flex:none;white-space:normal;box-shadow:none}
+html body .drawer nav.rail button[aria-current=true]{color:var(--ink);box-shadow:none;border:0}
+html body .drawer nav.rail button.dn{background:transparent;color:var(--ink)}
+html body .drawer nav.rail button.dn[aria-current=true]{background:var(--ab)}
+html body .drawer nav.rail .dn::after{content:none}
+html body .drawer nav.rail .rt{flex:1;min-width:0;text-align:left}
+html body .drawer nav.rail .rt small{display:block;white-space:normal}
+html body .drawer nav.rail .rh{display:block}
 
 </style>
 </head>
