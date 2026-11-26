@@ -2379,7 +2379,7 @@ function wResult(c,src,R){const r={};const ran=!!(P&&R&&R.log.length&&!R.err);r.
 // ==== src/ui/tour.js
 // UI. The tour: a map of the site. It runs once on the first Watch step, and again from Settings.
 // Part 1 shows the main sections. Part 2 shows the parts of a topic screen.
-// Part 3 visits Home and Reference, More, for the extras: Be the machine, Change the language, and what Lox can and cannot do.
+// Part 3 visits Home, Reference, More, and Profile: Be the machine, Change the language, what Lox can and cannot do, and how XP is earned.
 // Each stop lights up one part, says what it is, and says why it is there.
 // Parts 1 and 2 run on the Watch step, because that screen has every part they talk about.
 // A stop with g opens that page first. When the tour ends, it goes back to the Watch step.
@@ -2392,7 +2392,7 @@ const TOUR=[
  {s:'#vw [data-v=t]',p:0,i:'\u{1F4DD}',t:'Tests',w:'Four quiz tests and coding tests, one for each group of topics.',y:'They show what you know. The answers come only at the end.'},
  {s:'#vw [data-v=g]',p:0,i:'\u{1F4D6}',t:'Reference',w:'The Lox cheat sheet, every instruction, and the glossary.',y:'Look here when you forget a word or a rule.'},
  {s:'#vw [data-v=u]',p:0,i:'\u{1F464}',t:'Profile',w:'Your XP, stars, test scores, badges and certificate.',y:'It shows how far you have come. Finish all 15 topics to get the certificate.'},
- {s:'#xpb',p:0,i:'⭐',t:'XP',w:'You earn XP for every card you finish. Tap it to open your Profile.',y:'It is a quick count of the work you have done.'},
+ {s:'#xpb',p:0,i:'⭐',t:'XP',w:'Your points. You earn XP for each task you finish, from 5 for a reading card to 50 for a whole topic.',y:'It counts the work you have done. Tap it to open your Profile, which lists every way to earn XP.'},
  {s:'.mn summary',p:0,i:'⚙️',t:'Settings',w:'Change the colours, save your progress to a file, or see this tour again.',y:'A saved file lets you move your progress to another computer.'},
  {s:'#phs',p:1,i:'\u{1FA9C}',t:'Four steps',w:'Read explains the idea. Watch shows it running. Try lets you change code. Check asks questions.',y:'First you see an idea, then you use it, then you test yourself.'},
  {s:'#alls',p:1,i:'☰',t:'All topics',w:'Opens the list of all 15 topics, with how much of each you have done.',y:'Jump to any topic, or go back to one you want to revise.'},
@@ -2409,6 +2409,7 @@ const TOUR=[
  {s:'#lnot',g:'#/reference/more',p:2,i:'\u{1F6AB}',t:'What Lox cannot do',w:'Lox has no lists, no remainder operator, no way to read input, and no imports.',y:'Knowing the limits saves time. Some samples work around them, like the mod function.'},
  {s:'#atabs [data-t=c]',g:'#/reference/more',p:2,i:'\u2696\uFE0F',t:'Interpreter or compiler?',w:'A table that compares the two ways to run a program.',y:'clox does both. It compiles your code to bytecode, then a small virtual machine runs it.'},
  {s:'#atabs [data-t=w]',g:'#/reference/more',p:2,i:'\u{1F527}',t:'Wrong machines',w:'Copies of the real engine, each with one common beginner mistake built in.',y:'When your quiz answer is wrong, they can show the wrong idea behind it.'},
+ {s:'#xphow',g:'#/profile',p:2,i:'\u2B50',t:'How XP is earned',w:'Your Profile lists every way to earn XP. A card gives 5 to 30, a topic 50, a passed quiz test 50.',y:'You get XP for each thing only once, so it counts new work, not repeats. Your level goes up every 250 XP.'},
  {c:1,i:'\u{1F389}',t:'That is the whole map',w:'Back to your topic now. Start with the card on the left, and press Continue when it is done.',y:'You can see this tour again from Settings.'}];
 let TOURON=false;
 function tour(){
@@ -3387,8 +3388,9 @@ function quizTest(u){const seed=Date.now()%100000,qs=shuf(bank(u),seed).slice(0,
   $('#qtb').onclick=()=>{k--;show()};$('#qtn').onclick=()=>{if(k<qs.length-1){k++;show()}else finish()};tick()};
  const tick=()=>{const e=$('#qtime');if(!e)return;const s=Math.round((Date.now()-t0)/1000);e.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;clearTimeout(tick.t);tick.t=setTimeout(tick,1000)};
  const finish=()=>{clearTimeout(tick.t);const score=qs.filter((Q,j)=>pick[j]===Q.a).length,r=tr(u),pass=score>=QPASS,secs=Math.round((Date.now()-t0)/1000);
+  const was=!!(r.quiz&&r.quiz.best>=QPASS);   // XP comes only for the first pass, like everything else
   r.quiz={best:Math.max(score,r.quiz?r.quiz.best:0),last:score,n:qs.length,at:Date.now()};saveTR();Store.event('quiz-test',{u,score,n:qs.length,secs});
-  if(pass){XP+=50;saveLP();xpShow(50)}
+  if(pass&&!was){XP+=50;saveLP();xpShow(50)}
   $('#main').innerHTML=`<section class="card qt"><span class="kicker">${esc(unit[1])}: quiz test</span><h2>${score} of ${qs.length}${pass?', passed':''}</h2><p class="lead">${pass?'Well above the pass mark.':`The pass mark is ${QPASS}. Read the answers below, then try again.`} Time: ${Math.floor(secs/60)} min ${secs%60} s.</p>
 <ol class="rev">${qs.map((Q,j)=>{const ok=pick[j]===Q.a;return`<li class="${ok?'ok':'no'}"><p class="qq">${txp(Q.q.q)}</p>${Q.q.code?codeBox(Q.q.code):''}<p>${ok?'<b>Right.</b>':`<b>Your answer:</b> ${esc(Q.o[pick[j]][0])}. <b>Answer:</b> ${esc(Q.o[Q.a][0])}.`} ${txp(Q.q.why)}</p></li>`}).join('')}</ol>
 <div class="ctl"><button class="btn" id="qtx" type="button">Back to Tests</button><button class="btn pri" id="qtr" type="button">Take it again</button></div></section>`;
@@ -3416,11 +3418,19 @@ function problem(id){const p=PROBLEMS.find(x=>x.id===id),pi=CH.findIndex(c=>c.pg
 // ==== src/ui/profile.js
 // UI. Profile: the learner's name (kept on this device), XP, level, streak, stars per lesson, test results and badges.
 // Everything shown here is read through Store, so the same page works when progress comes from a server later.
+// How XP is earned. The numbers come from XPC (lesson.js) and the fixed amounts in topic.js, lesson.js, machine.js and tests.js.
+function xpHow(){const r=(a,b)=>`<tr><td>${a}</td><td>${b}</td></tr>`;
+ return`<section class="card" id="xphow"><h3>How you earn XP</h3><table class="lg"><tr><th>What you do</th><th>XP</th></tr>
+${r('Finish the Read step of a topic',10)}${r('Finish a reading card',XPC.read)}${r('Run the code, watch a scene, or tap the right part',XPC.run)}
+${r('Answer a question card',`${XPC.quiz}, plus 5 if you are right the first time`)}${r('Do a change-the-code task',XPC.change)}${r('Do a write-the-code task',XPC.write)}
+${r('Finish a topic',`50, plus ${XPC.recap} for its last card`)}${r('Finish a Be the machine level',20)}${r('Solve a coding problem in Tests',40)}${r(`Pass a quiz test (${QPASS} of ${QN} right)`,50)}</table>
+<p class="dm">You get XP for each thing only once, the first time you do it. Your level goes up every 250 XP.</p></section>`}
 function profile(){stop();navActive('u');document.body.dataset.view='u';$('.wrap').classList.add('ws');
  const L=CH.map((c,i)=>[c,i]).filter(([c])=>!c.pg),fin=L.filter(([c,i])=>lp(i).fin).length,st=L.reduce((a,[c,i])=>a+stars(i),0),nm=Store.get('name','');
  const qt=TUNITS.map(([u,t])=>{const r=tr(u);return`<tr><td>${esc(t)}</td><td>${r.quiz?`${r.quiz.best} of ${r.quiz.n}${r.quiz.best>=QPASS?' (passed)':''}`:'Not taken'}</td><td>${PROBLEMS.filter(p=>p.unit===u&&r.code[p.id]).length} of ${PROBLEMS.filter(p=>p.unit===u).length}</td></tr>`}).join('');
  $('#main').innerHTML=`${accCard()||'<span id="accslot"></span>'}<section class="card"><h2>Your progress</h2><label class="pname">Your name <input id="pnm" type="text" maxlength="40" value="${esc(nm)}" placeholder="Type your name" autocomplete="name"></label><p class="dm">${Acc.name?'This name is printed on your certificate.':'Kept only on this device. Use Settings, Save to file, to move your progress to another computer.'}</p></section>
 <section class="card stats"><div><b>${XP}</b><span>XP</span></div><div><b>${level()}</b><span>Level</span></div><div><b>${STREAK.n||0}</b><span>Day streak</span></div><div><b>${fin} of ${L.length}</b><span>Topics finished</span></div></section>
+${xpHow()}
 ${certHTML(fin,L.length,nm)}<section class="card"><h3>Topics</h3><table class="lg"><tr><th>Topic</th><th>Done</th><th>Stars</th></tr>${L.map(([c,i])=>`<tr><td>${i+1}. ${esc(c.n)}</td><td>${lessonPct(i)}%</td><td><span class="stars sm" aria-label="${stars(i)} of 3 stars">${[0,1,2].map(j=>`<span class="${j<stars(i)?'on':''}">★</span>`).join('')}</span></td></tr>`).join('')}</table><p class="dm">${st} of ${L.length*3} stars. One for every question right the first time, one for tasks done without Show me, one for finishing.</p></section>
 <section class="card"><h3>Tests</h3><table class="lg"><tr><th>Unit</th><th>Quiz test (best)</th><th>Coding problems solved</th></tr>${qt}</table><button class="btn" type="button" id="pgt">Go to Tests</button></section>
 <section class="card"><h3>Badges</h3><div class="rc bdg">${BD.map(b=>`<div class="rcb${earned.has(b[0])?' on':''}"><small>${earned.has(b[0])?'Earned':'Not yet'}</small><b>${b[1]}</b><span>${b[2]}</span></div>`).join('')}</div></section>`;
