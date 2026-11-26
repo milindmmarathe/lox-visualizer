@@ -2379,11 +2379,13 @@ function wResult(c,src,R){const r={};const ran=!!(P&&R&&R.log.length&&!R.err);r.
 // ==== src/ui/tour.js
 // UI. The tour: a map of the site. It runs once on the first Watch step, and again from Settings.
 // Part 1 shows the main sections. Part 2 shows the parts of a topic screen.
+// Part 3 visits Home and Reference, More, for the extras: Be the machine, Change the language, and what Lox can and cannot do.
 // Each stop lights up one part, says what it is, and says why it is there.
-// The tour runs on the Watch step, because that screen has every part it talks about.
-const TOURP=['Around the site','On a topic'];
+// Parts 1 and 2 run on the Watch step, because that screen has every part they talk about.
+// A stop with g opens that page first. When the tour ends, it goes back to the Watch step.
+const TOURP=['Around the site','On a topic','More to explore'];
 const TOUR=[
- {c:1,i:'\u{1F5FA}️',t:'A map of this site',w:'This tour shows what each part of the site is, and why it is there.',y:'It takes about two minutes. Use the buttons or the arrow keys.'},
+ {c:1,i:'\u{1F5FA}️',t:'A map of this site',w:'This tour shows what each part of the site is, and why it is there.',y:'It takes about three minutes. Use the buttons or the arrow keys.'},
  {s:'#vw [data-v=s]',p:0,i:'\u{1F3E0}',t:'Home',w:'Your starting page. It lists all 15 topics and the extra activities.',y:'Come here when you are not sure what to do next.'},
  {s:'#vw [data-v=l]',p:0,i:'\u{1F4D8}',t:'Learn',w:'The course: 15 topics, each about one idea.',y:'Each topic builds on the ones before it, so going in order is easiest.'},
  {s:'#vw [data-v=p]',p:0,i:'✏️',t:'Practice',w:'Write any program and watch it run. There are 11 samples to start from.',y:'Your own programs show whether you really understand an idea.'},
@@ -2401,7 +2403,13 @@ const TOUR=[
  {s:'#mtabs',p:1,i:'\u{1F5C2}️',t:'Four views',w:'Picture draws the machine. Tokens shows the words found in your code. Instructions shows what the compiler wrote. Steps lists every step.',y:'Each view shows the same run in a different way.'},
  {s:'.wmach',p:1,i:'\u{1F50D}',t:'The machine',w:'It shows the pile (the stack) and the instructions, and what changes at each scene, with the reason.',y:'This is the part you normally cannot see after you press Run.'},
  {s:'#scr',p:1,i:'\u{1F5A5}️',t:'Screen',w:'Shows what your program prints.',y:'Compare it with what you expected. A surprise means there is something to learn.'},
- {c:1,i:'\u{1F389}',t:'That is the whole map',w:'Start with the card on the left, and press Continue when it is done.',y:'You can see this tour again from Settings.'}];
+ {s:'.tile[data-tile=b]',g:'#/',p:2,i:'\u{1F9E0}',t:'Be the machine',w:'A game where you play the virtual machine. For each instruction, you choose what the pile looks like next.',y:'Doing the machine\u2019s job yourself is a strong test of whether you understand it. There are 7 levels, and you can also play your own short programs.'},
+ {s:'.tile[data-tile=w]',g:'#/',p:2,i:'\u{1F524}',t:'Change the language',w:'Rename the keywords, even into Kannada or Hindi, and add your own functions. The changes work in every topic and in Practice.',y:'A keyword is only a word the scanner looks for. Rename it, and the rest of the machine works the same.'},
+ {s:'#atabs [data-t=f]',g:'#/reference/more',p:2,i:'\u2705',t:'What Lox can do',w:'Ten short examples, from numbers to classes. Try it opens any of them in Practice.',y:'A working example is a good start for your own code.'},
+ {s:'#lnot',g:'#/reference/more',p:2,i:'\u{1F6AB}',t:'What Lox cannot do',w:'Lox has no lists, no remainder operator, no way to read input, and no imports.',y:'Knowing the limits saves time. Some samples work around them, like the mod function.'},
+ {s:'#atabs [data-t=c]',g:'#/reference/more',p:2,i:'\u2696\uFE0F',t:'Interpreter or compiler?',w:'A table that compares the two ways to run a program.',y:'clox does both. It compiles your code to bytecode, then a small virtual machine runs it.'},
+ {s:'#atabs [data-t=w]',g:'#/reference/more',p:2,i:'\u{1F527}',t:'Wrong machines',w:'Copies of the real engine, each with one common beginner mistake built in.',y:'When your quiz answer is wrong, they can show the wrong idea behind it.'},
+ {c:1,i:'\u{1F389}',t:'That is the whole map',w:'Back to your topic now. Start with the card on the left, and press Continue when it is done.',y:'You can see this tour again from Settings.'}];
 let TOURON=false;
 function tour(){
  if(TOURON)return;
@@ -2411,22 +2419,28 @@ function tour(){
   location.hash='#/topic/'+c.id+'/watch';let n=0;
   const wait=()=>{if($('.wcode')&&$('#ctl'))return setTimeout(tour,300);if(++n<40)setTimeout(wait,100)};return setTimeout(wait,100)}
  const seen=s=>{const e=$(s);return e&&e.getClientRects().length>0};
- const stops=TOUR.filter(x=>x.c||seen(x.s)),N=stops.length;if(N<3)return;
+ const stops=TOUR.filter(x=>x.c||x.g||seen(x.s)),N=stops.length;if(N<3)return;
  const inPart=stops.map(x=>x.c?0:stops.filter(y=>y.p===x.p).indexOf(x)+1),ofPart=p=>stops.filter(y=>y.p===p).length;
- TOURON=true;let k=0,raf=0;const back=document.activeElement;
+ TOURON=true;let k=0,raf=0,nav=0;const back=document.activeElement,home=location.hash;
  const mk=c=>{const d=document.createElement('div');d.className=c;return d};
  const veil=mk('tour-veil'),sh=mk('tour-hole'),bx=mk('tour');
  bx.setAttribute('role','dialog');bx.setAttribute('aria-modal','true');bx.setAttribute('aria-labelledby','tourt');bx.setAttribute('aria-describedby','tourd');
  document.body.append(veil,sh,bx);
- const end=()=>{TOURON=false;cancelAnimationFrame(raf);veil.remove();sh.remove();bx.remove();removeEventListener('resize',later);removeEventListener('scroll',later,true);document.removeEventListener('keydown',key,true);
-  try{Store.put('tour','1')}catch(e){}if(back&&back.focus&&document.contains(back))back.focus()};
- const go=d=>{k=Math.max(0,k+d);if(k>=N)return end();draw()};
- const key=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();end()}
+ const end=()=>{TOURON=false;nav++;const tp=$('#tourpad');if(tp)tp.remove();cancelAnimationFrame(raf);veil.remove();sh.remove();bx.remove();removeEventListener('resize',later);removeEventListener('scroll',later,true);document.removeEventListener('keydown',key,true);
+  try{Store.put('tour','1')}catch(e){}if(location.hash!==home)location.hash=home;else if(back&&back.focus&&document.contains(back))back.focus()};
+ // Move to another stop. If it is on another page, open that page, hide the box, and wait for the part to appear.
+ const go=d=>{const j=Math.max(0,k+d);if(j>=N)return end();k=j;const want=stops[k].g||home,me=++nav;
+  if(location.hash===want)return draw();
+  bx.style.visibility='hidden';sh.classList.add('off');location.hash=want;let n=0;
+  const wait=()=>{if(me!==nav||!TOURON)return;const x=stops[k];if(x.c||seen(x.s)){scrollTo(0,0);return draw()}
+   if(++n<40)return setTimeout(wait,100);const nx=k+(d||1);if(nx>=0&&nx<N)go(d||1);else end()};setTimeout(wait,120)};
+ // The tour takes every key while it is open, so the page's own shortcuts (like the arrow keys on a topic) do not run too.
+ const key=e=>{e.stopPropagation();if(e.key==='Escape'){e.preventDefault();e.stopPropagation();end()}
   else if(e.key==='ArrowRight'){e.preventDefault();go(1)}else if(e.key==='ArrowLeft'&&k){e.preventDefault();go(-1)}
   else if(e.key==='Tab'){const f=[...bx.querySelectorAll('button')];if(!f.length)return;const i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}};
  const later=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>place(false))};
  // Fill the box for this stop, then place it.
- const draw=()=>{const x=stops[k],first=k===0,last=k===N-1;
+ const draw=()=>{const x=stops[k],first=k===0,last=k===N-1;bx.style.visibility='';
   const head=x.c?(first?'Quick tour':'Done'):`${TOURP[x.p]} · ${inPart[k]} of ${ofPart(x.p)}`;
   bx.classList.toggle('mid',!!x.c);
   bx.innerHTML=`<div class="th"><p class="dm">${head}</p><button class="tx" type="button" data-x aria-label="Close the tour">×</button></div>
@@ -2447,6 +2461,8 @@ function tour(){
   const lo=inTop?0:hh+12,hi=sheet?H-bh-24:H-12,pad=6;   // the part must be seen between lo and hi
   const rect=()=>e.getBoundingClientRect();
   if(scroll&&inTop)e.scrollIntoView({block:'nearest',inline:'nearest'});   // a tab hidden off the side of the header row
+  // A part near the end of a page cannot scroll above the box. Add room below it for the tour (Home and Reference only).
+  const pad0=$('#tourpad');if(x.g&&!inTop){if(!pad0){const d=document.createElement('div');d.id='tourpad';d.setAttribute('aria-hidden','true');d.style.height=Math.round(H*.6)+'px';$('#main').append(d)}}else if(pad0)pad0.remove();
   let r=rect();
   if(scroll&&!inTop&&(r.top<lo||r.bottom>hi)){scrollBy({top:r.top-lo-(r.height<hi-lo?Math.min(40,(hi-lo-r.height)/2):0),behavior:'instant'});r=rect()}
   // A free spot next to the part: below, above, right or left. None on a small screen: the box sits at the bottom.
@@ -3422,7 +3438,7 @@ function goPG(code){const i=CH.findIndex(c=>c.pg);codes[i]=code;persist();ci=i;s
 function atlas(tab){stop();if($('#src')&&!cardProg){codes[ci]=$('#src').value;persist()}$('.wrap').classList.add('ws');
  const T=[['f','What Lox can do'],['c','Interpreter or compiler?'],['w','Wrong machines']],card=x=>`<div class="card">${x}</div>`;let h=card(`<div class="ctl" style="margin:0 0 8px"><button class="btn sm" type="button" id="tog">\u2039 Back to Reference</button></div><h2>Reference</h2><p class="lead">Extra reading. You can skip all of this.</p><div class="seg" id="atabs" style="margin-top:10px">${T.map(([k,n])=>`<button data-t="${k}" aria-pressed="${k===tab}">${n}</button>`).join('')}</div>`);
  if(tab==='w')h+=card(wmPage());
- if(tab==='f')h+=card(`<h3>What Lox can do</h3><p class="lead">Lox is a small language from the book Crafting Interpreters by Robert Nystrom. Press Try it to run an example in Practice.</p><table class="lg">${FEAT.map((f,i)=>`<tr><td><b>${f[0]}</b></td><td><code>${esc(f[1].split('\n')[0])}${f[1].includes('\n')?' ...':''}</code></td><td><button class="btn" data-try="${i}">Try it</button></td></tr>`).join('')}</table><h3 style="margin-top:16px">What Lox does not have</h3><p class="lead">No lists, no remainder operator (the samples build one called mod), no way to read input, no imports.</p>`);
+ if(tab==='f')h+=card(`<h3>What Lox can do</h3><p class="lead">Lox is a small language from the book Crafting Interpreters by Robert Nystrom. Press Try it to run an example in Practice.</p><table class="lg">${FEAT.map((f,i)=>`<tr><td><b>${f[0]}</b></td><td><code>${esc(f[1].split('\n')[0])}${f[1].includes('\n')?' ...':''}</code></td><td><button class="btn" data-try="${i}">Try it</button></td></tr>`).join('')}</table><div id="lnot"><h3 style="margin-top:16px">What Lox does not have</h3><p class="lead">No lists, no remainder operator (the samples build one called mod), no way to read input, no imports.</p></div>`);
  if(tab==='c')h+=card(`<h3>Interpreter or compiler?</h3><p class="lead">A compiler translates the whole program first, then runs it. An interpreter reads the program and runs it as it goes. Neither is better. Each has a cost.</p><table class="lg"><tr><th></th><th>Interpreter</th><th>Compiler</th></tr><tr><td>Starts</td><td>At once</td><td>After translating</td></tr><tr><td>Speed</td><td>Usually slower</td><td>Usually faster</td></tr><tr><td>Mistakes</td><td>Many found only when that line runs</td><td>Many found before running</td></tr><tr><td>Moving to another machine</td><td>Works where the interpreter works</td><td>Needs one build per machine</td></tr><tr><td>Good for</td><td>Learning, scripts, quick tests</td><td>Games, systems, heavy work</td></tr></table><p class="lead" style="margin-top:12px"><b>Where Lox sits.</b> clox does both. It compiles your code to bytecode, then a small virtual machine runs the bytecode. Python and Java work in a similar way.</p>`);
  $('#main').innerHTML=h;if(tab==='w')wmWire();$('#tog').onclick=()=>setView('g');$('#atabs').onclick=e=>{const b=e.target.closest('button');if(b)atlas(b.dataset.t)};document.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>goPG(rw(FEAT[+b.dataset.try][1],{},LEX)))}
 
