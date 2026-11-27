@@ -958,6 +958,21 @@ html body .drawer nav.rail .rt small{display:block;white-space:normal}
 html body .drawer nav.rail .rh{display:block}
 /* Settings menu on tablets: open towards the left, from under the button at the right of the header, so it stays on screen */
 @media(min-width:601px){html body .mn .pop{left:auto;right:0;max-width:calc(100vw - 24px)}}
+/* Be the machine: what it can and cannot play */
+html body .bmlim{flex:1 1 100%;margin:4px 0 0;border:1px solid var(--ln);border-radius:12px;background:var(--ab);font-size:15px;line-height:1.5}
+html body .bmlim summary{cursor:pointer;padding:10px 14px;list-style:none}
+html body .bmlim summary::-webkit-details-marker{display:none}
+html body .bmlim .bmmore{white-space:nowrap;font-weight:600;color:var(--a);text-decoration:underline;text-underline-offset:2px}
+html body .bmlim[open] .bmmore{display:none}
+html body .bmlim .bmlg{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;padding:0 14px}
+html body .bmlim h4{margin:8px 0 4px;font-size:15px;padding:0 14px}
+html body .bmlim .bmlg h4{padding:0}
+html body .bmlim ul{margin:0 0 8px;padding:0 14px 0 32px}
+html body .bmlim .bmlg ul{padding:0 0 0 18px}
+html body .bmlim li{margin:2px 0}
+@media(max-width:640px){html body .bmlim .bmlg{grid-template-columns:1fr}}
+html body .bmwhy{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 14px;border-radius:12px;border-left:4px solid var(--warn,#b45309);background:var(--pn);box-shadow:inset 0 0 0 1px var(--ln)}
+html body .bmwhy p{margin:0;flex:1 1 260px;font-size:16px}
 
 </style>
 </head>
@@ -2403,7 +2418,7 @@ const TOUR=[
  {s:'#mtabs',p:1,i:'\u{1F5C2}️',t:'Four views',w:'Picture draws the machine. Tokens shows the words found in your code. Instructions shows what the compiler wrote. Steps lists every step.',y:'Each view shows the same run in a different way.'},
  {s:'.wmach',p:1,i:'\u{1F50D}',t:'The machine',w:'It shows the pile (the stack) and the instructions, and what changes at each scene, with the reason.',y:'This is the part you normally cannot see after you press Run.'},
  {s:'#scr',p:1,i:'\u{1F5A5}️',t:'Screen',w:'Shows what your program prints.',y:'Compare it with what you expected. A surprise means there is something to learn.'},
- {s:'.tile[data-tile=b]',g:'#/',p:2,i:'\u{1F9E0}',t:'Be the machine',w:'A game where you play the virtual machine. For each instruction, you choose what the pile looks like next.',y:'Doing the machine\u2019s job yourself is a strong test of whether you understand it. There are 7 levels, and you can also play your own short programs.'},
+ {s:'.tile[data-tile=b]',g:'#/',p:2,i:'\u{1F9E0}',t:'Be the machine',w:'A game where you play the virtual machine. For each instruction, you choose what the pile looks like next.',y:'Doing the machine\u2019s job yourself is a strong test of whether you understand it. There are 7 levels. Your own short programs work too, without functions, classes or local variables.'},
  {s:'.tile[data-tile=w]',g:'#/',p:2,i:'\u{1F524}',t:'Change the language',w:'Rename the keywords, even into Kannada or Hindi, and add your own functions. The changes work in every topic and in Practice.',y:'A keyword is only a word the scanner looks for. Rename it, and the rest of the machine works the same.'},
  {s:'#atabs [data-t=f]',g:'#/reference/more',p:2,i:'\u2705',t:'What Lox can do',w:'Ten short examples, from numbers to classes. Try it opens any of them in Practice.',y:'A working example is a good start for your own code.'},
  {s:'#lnot',g:'#/reference/more',p:2,i:'\u{1F6AB}',t:'What Lox cannot do',w:'Lox has no lists, no remainder operator, no way to read input, and no imports.',y:'Knowing the limits saves time. Some samples work around them, like the mod function.'},
@@ -2597,12 +2612,24 @@ const BTM=[
 ];
 // What each instruction does to the pile, as a rule the learner applies. (No answers here.)
 const BTMR={CONSTANT:(c,K)=>`Put ${S2(K[c.arg])} on top of the pile.`,NIL:()=>'Put nil on top of the pile.',TRUE:()=>'Put true on top of the pile.',FALSE:()=>'Put false on top of the pile.',
- ADD:()=>'Take the top two values off. Put back their sum.',SUBTRACT:()=>'Take the top two values off. Put back: lower one minus top one.',MULTIPLY:()=>'Take the top two values off. Put back their product.',DIVIDE:()=>'Take the top two values off. Put back: lower one divided by top one.',
- NEGATE:()=>'Replace the top value by its negative.',NOT:()=>'Flip the top value: true becomes false, false becomes true.',
+ ADD:()=>'Take the top two values off. Put back their sum. Two strings are joined instead.',SUBTRACT:()=>'Take the top two values off. Put back: lower one minus top one.',MULTIPLY:()=>'Take the top two values off. Put back their product.',DIVIDE:()=>'Take the top two values off. Put back: lower one divided by top one.',
+ NEGATE:()=>'Replace the top value by its negative.',NOT:()=>'Take the top value off. Put back true if it was false or nil, or else false.',
  GREATER:()=>'Take the top two values off. Put back true if the lower one is greater, or else false.',LESS:()=>'Take the top two values off. Put back true if the lower one is less, or else false.',EQUAL:()=>'Take the top two values off. Put back true if they are equal, or else false.',
  PRINT:()=>'Take the top value off and show it on the screen.',POP:()=>'Throw away the top value.',
  DEFINE_GLOBAL:c=>`Take the top value off. Store it on the shelf as ${c.nm}.`,GET_GLOBAL:c=>`Copy the value of ${c.nm} from the shelf onto the pile.`,SET_GLOBAL:c=>`Copy the top value into ${c.nm} on the shelf. Leave it on the pile.`,
- JUMP_IF_FALSE:()=>'Look at the top value. If it is false, jump ahead. Do not remove it.',JUMP:()=>'Jump ahead. The pile is not touched.',LOOP:()=>'Jump back. The pile is not touched.',RETURN:()=>'Take the top value off and end the program.'};
+ JUMP_IF_FALSE:()=>'Look at the top value. If it is false or nil, jump ahead. Do not remove it.',JUMP:()=>'Jump ahead. The pile is not touched.',LOOP:()=>'Jump back. The pile is not touched.',RETURN:()=>'Take the top value off and end the program.'};
+// What "Be the machine" can and cannot play, in plain words. Shown at the top of the page, and checked by
+// tests/machine_check.py against real programs, so every line here stays true.
+const BTMCAN=['Numbers, strings, true, false and nil','Sums: + - * / and a minus sign','Comparisons: == != < <= > >=, and ! (not)','and, or','Global variables: make them, read them and change them','print, if, else and while'];
+const BTMNOT=['A var inside { }, or for (var …). These are local variables.','Functions: fun, return, and calls such as clock()','Classes and objects: class, this and super','A program that runs for more than 40 steps','Code with a writing mistake, or code that stops with an error'];
+const BTMHOW=['For each instruction, you choose the pile after it, from 3 options. The rule for the instruction is shown next to it.',
+ 'You are asked only about the pile. The shelf (global variables), the screen and the jumps are shown to you.',
+ 'Every instruction the machine runs is one step. A loop counts again on every turn, so 40 steps go quickly.',
+ 'A level counts the instructions you got right the first time. You earn 20 XP the first time you finish each level.',
+ 'Your own code is for practice: it gives no XP, and no score is kept.'];
+// Instructions Be the machine has no rule for, and the Lox feature that makes each one.
+const BTMNO={GET_LOCAL:'a var inside { } or for (var …)',SET_LOCAL:'a var inside { } or for (var …)',CLOSURE:'a function (fun)',CALL:'a function call, such as clock()',GET_UPVALUE:'a function (fun)',SET_UPVALUE:'a function (fun)',CLOSE_UPVALUE:'a function (fun)',
+ CLASS:'a class',METHOD:'a class',INHERIT:'a class',GET_PROPERTY:'an object',SET_PROPERTY:'an object',INVOKE:'an object',GET_SUPER:'a class',SUPER_INVOKE:'a class'};
 
 // ==== src/ui/machine.js
 // UI. "Be the machine" (view 'b'): the learner plays the virtual machine. The real engine runs the level's program;
@@ -2624,21 +2651,23 @@ function machine(n){stop();cardProg='btm';document.body.dataset.view='b';navActi
  const L=BTM[n],D=bmSteps(rw(L.p,{},LEX));BM={n,k:0,right:0,miss:false,D,src:rw(L.p,{},LEX),done:false};bmDraw()}
 // Play your own Practice code, when it is short and uses only instructions that have a rule here.
 const BMMAX=40;
-function bmOwn(){const pi=CH.findIndex(c=>c.pg),src=codes[pi]!==undefined?codes[pi]:starter(pi);let D=null,why='';
- try{D=bmSteps(src)}catch(e){why=`Your Practice code has a writing mistake on line ${e.line}. Fix it in Practice first.`}
- if(D){const no=[...new Set(D.steps.filter(x=>!BTMR[x.op]).map(x=>x.op))];
-  if(D.err)why='Your Practice code stops with a mistake. Fix it in Practice first.';
-  else if(no.length)why=`Your code uses ${no.slice(0,3).join(', ')}. Be the machine cannot play ${no.length>1?'these':'this'} yet. Use numbers, global variables, if, while and print.`;
-  else if(D.steps.length>BMMAX)why=`Your code runs for ${D.steps.length} steps. Be the machine plays programs of up to ${BMMAX} steps.`}
+// The code is checked before it runs, so a call such as clock() is named, not reported as an error.
+function bmOwn(){const pi=CH.findIndex(c=>c.pg),src=codes[pi]!==undefined?codes[pi]:starter(pi);let D=null,why='',Q=null;
+ try{Q=compile(src)}catch(e){why=`Your Practice code has a writing mistake on line ${e.line}. Fix it in Practice first.`}
+ const no=Q?[...new Set(Q.f.code.filter(c=>!BTMR[c.op]).map(c=>BTMNO[c.op]||c.op))]:[];
+ if(no.length)why=`Your code uses ${no.length>1?no.slice(0,-1).join(', ')+' and '+no[no.length-1]:no[0]}. Be the machine cannot play ${no.length>1?'these':'this'} yet. See the full list below.`;
+ else if(Q){D=bmSteps(src);
+  if(D.err)why=`Your Practice code stops with an error: ${String(D.err.msg||D.err).replace(/^Line \d+: /,'')} Fix it in Practice first.`;
+  else if(D.steps.length>BMMAX)why=`Your code runs for ${D.steps.length} steps. Be the machine plays up to ${BMMAX}. Try a loop that goes round fewer times.`}
  BM={n:-1,own:true,k:0,right:0,miss:false,D,src,done:false,why};bmDraw()}
 function bmDraw(){const L=BM.own?{t:'Your own code',tip:''}:BTM[BM.n],D=BM.D,S=D&&D.steps,st=S&&S[BM.k],N=S?S.length:0;
  const levels=`<div class="bmlv" role="tablist" aria-label="Levels">${BTM.map((l,j)=>`<button type="button" data-lv="${j}" ${j===BM.n?'aria-current="true"':''} title="${esc(l.t)}">${BMB[j]!==undefined?'✓ ':''}${j+1}</button>`).join('')}<button type="button" data-lv="own" ${BM.own?'aria-current="true"':''} title="Play the code in your Practice editor">My code</button></div>`;
  const head=`<header class="card bmh"><div class="seg ptabs"><button type="button" id="bms" aria-pressed="false">Samples</button><button type="button" aria-pressed="true">Be the machine</button><button type="button" id="bmc" aria-pressed="false">Change the language</button></div>
-<h2>Be the machine</h2><p class="dm">You are the virtual machine. For each instruction, choose what the pile looks like after it.</p>${levels}</header>`;
- if(BM.own&&BM.why){$('#main').innerHTML=`<div class="bm">${head}<section class="card bmend"><h3>Your own code</h3><p>${esc(BM.why)}</p><div class="bmbt"><button type="button" class="btn pri" id="bmtp">Open Practice</button></div></section></div>`;$('#bmtp').onclick=()=>setView('p');bmWire();return}
+<h2>Be the machine</h2><p class="dm">You are the virtual machine. For each instruction, choose what the pile looks like after it.</p>${levels}${BM.own&&BM.why?`<div class="bmwhy" role="status"><p>${esc(BM.why)}</p><button type="button" class="btn pri" id="bmtp">Open Practice</button></div>`:''}${bmLimits()}</header>`;
+ if(BM.own&&BM.why){$('#main').innerHTML=`<div class="bm">${head}</div>`;$('#bmtp').onclick=()=>setView('p');bmWire();return}
  if(BM.done){const best=BMB[BM.n],all=BM.right===N,stars=all?3:BM.right>=Math.ceil(N*.8)?2:1,nx=!BM.own&&BM.n<BTM.length-1;
   $('#main').innerHTML=`<div class="bm">${head}<section class="card bmend"><div class="stars lg">${[0,1,2].map(j=>`<span class="${j<stars?'on':''}">★</span>`).join('')}</div><h3>${BM.own?'Done: your own code':`Level ${BM.n+1} done: ${esc(L.t)}`}</h3>
-<p>You got <b>${BM.right} of ${N}</b> instructions right the first time. The program printed <b>${esc(D.out.join(', '))||'nothing'}</b>.</p><p class="dm">${all?'You ran this program exactly like the real machine.':'Play it again to get every instruction right the first time.'}</p>
+<p>You got <b>${BM.right} of ${N}</b> instructions right the first time. The program printed <b>${esc(D.out.join(', '))||'nothing'}</b>.</p><p class="dm">${all?'You ran this program exactly like the real machine.':'Play it again to get every instruction right the first time.'}${BM.own?' Your own code is for practice: it gives no XP, and no score is kept.':''}</p>
 <div class="bmbt"><button type="button" class="btn" id="bmag">Play again</button><button type="button" class="btn" id="bmw">Watch the real machine run it</button>${nx?`<button type="button" class="btn pri" id="bmnx">Level ${BM.n+2}: ${esc(BTM[BM.n+1].t)} ›</button>`:''}</div></section></div>`;
   $('#bmag').onclick=()=>machine(BM.own?'own':BM.n);$('#bmw').onclick=()=>{cardProg=null;goPG(BM.src)};if(nx)$('#bmnx').onclick=()=>machine(BM.n+1);bmWire();burst($('.bmend'));return}
  const opts=shuf([{s:st.s1,ok:1},...st.wrong.map(s=>({s}))],(BM.n+2)*31+BM.k*7+3);
@@ -2652,6 +2681,11 @@ function bmDraw(){const L=BM.own?{t:'Your own code',tip:''}:BTM[BM.n],D=BM.D,S=D
 <h3>What is on the pile after it?</h3><div class="bmopts" id="bmo">${opts.map((o,j)=>`<button type="button" class="bmo" data-ok="${o.ok?1:0}" aria-label="Option ${j+1}: ${o.s.length?esc(o.s.slice().reverse().map(S2).join(', top to bottom ')):'empty'}"><small>${j+1}</small>${bmPile(o.s)}</button>`).join('')}</div>
 <div class="bmfb" id="bmfb" aria-live="polite"><p class="dm">The top of the pile is drawn at the top. Keys 1, 2 and 3 choose an option.${BM.k?'':' '+esc(L.tip)}</p></div></section></div></div>`;
  bmWire();document.querySelectorAll('.bmo').forEach(b=>b.onclick=()=>bmPick(b))}
+// The limits, stated in full. The first line is always shown. The lists open on My code, where they matter most.
+function bmLimits(){const li=a=>a.map(x=>`<li>${esc(x)}</li>`).join('');
+ return`<details class="bmlim"${BM.own?' open':''}><summary><b>It can play:</b> numbers, strings, global variables, if, while and print, up to ${BMMAX} steps. <b>Not yet:</b> local variables, functions and classes. <span class="bmmore">Details</span></summary>
+<div class="bmlg"><div><h4>\u2713 It can play</h4><ul>${li(BTMCAN)}<li>Up to ${BMMAX} steps</li></ul></div><div><h4>\u2717 It cannot play yet</h4><ul>${li(BTMNOT)}</ul></div></div>
+<h4>How it works</h4><ul>${li(BTMHOW)}</ul></details>`}
 function bmWire(){$('#bms').onclick=()=>setView('p');$('#bmc').onclick=()=>setView('w');document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>machine(b.dataset.lv==='own'?'own':+b.dataset.lv))}
 function bmPick(b){const st=BM.D.steps[BM.k],fb=$('#bmfb');if(b.disabled)return;
  if(b.dataset.ok==='1'){if(!BM.miss)BM.right++;document.querySelectorAll('.bmo').forEach(x=>x.disabled=true);b.classList.add('ok');
