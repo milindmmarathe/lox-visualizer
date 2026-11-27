@@ -973,6 +973,37 @@ html body .bmlim li{margin:2px 0}
 @media(max-width:640px){html body .bmlim .bmlg{grid-template-columns:1fr}}
 html body .bmwhy{flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 14px;border-radius:12px;border-left:4px solid var(--warn,#b45309);background:var(--pn);box-shadow:inset 0 0 0 1px var(--ln)}
 html body .bmwhy p{margin:0;flex:1 1 260px;font-size:16px}
+/* "Keep going" after a topic, and other links between parts of the site */
+html body .nxup{margin:16px 0 0;text-align:left}
+html body .nxup h4{margin:0 0 8px;font-size:16px}
+html body .nxg{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+html body .nxu{display:flex;flex-direction:column;gap:2px;text-align:left;padding:12px 14px;border:1px solid var(--ln);border-radius:12px;background:var(--pn);color:var(--ink);font:inherit;cursor:pointer;min-height:44px}
+html body .nxu:hover{border-color:var(--a);background:var(--ab)}
+html body .nxu small{font-size:14px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--a)}
+html body .nxu b{font-size:16px;line-height:1.35}
+html body .nxu span{font-size:14px;line-height:1.45;color:var(--dim)}
+/* Be the machine: intro, levels grouped by difficulty, the topic each level practises, programs to try */
+html body .bmh .bmint{flex:1 1 100%;margin:0;font-size:16px;line-height:1.55;color:var(--ink)}
+html body .bmh .bmint .lnk{font-size:inherit;padding:0}
+html body .bmh .bmlv{flex:1 1 100%;display:flex;flex-direction:column;gap:8px;margin:2px 0 0}
+html body .bmgr{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+html body .bmgl{flex:0 0 104px;font-size:14px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--dim)}
+html body .bmgr button .ok{color:var(--a)}
+html body .bmgr button[aria-current] .ok{color:inherit}
+html body .bmfrom{margin:-2px 0 10px;font-size:14px;color:var(--dim)}
+html body .bmfrom .lnk{font-size:14px;padding:0}
+html body .bmtry{margin-top:16px}
+html body .bmtry h3{margin:0 0 4px}
+html body .bmtry ol{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+html body .bmtry li{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border:1px solid var(--ln);border-radius:12px}
+html body .bmtry pre{margin:0;padding:8px 10px;border-radius:8px;background:var(--ab);font:14px/1.5 var(--m,monospace);white-space:pre-wrap;flex:1}
+html body .bmtry .bmbt{justify-content:flex-start;margin:0}
+html body .bmd{display:inline-block;padding:1px 8px;border-radius:999px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--ab);color:var(--a)}
+html body .bmd.medium{background:var(--bb);color:var(--b)}
+html body .bmd.challenge{background:var(--rb);color:var(--r)}
+@media(max-width:600px){html body .bmgl{flex-basis:100%}}
+html body .bmg>*{min-width:0}html body .bmcode{white-space:pre-wrap;overflow-wrap:anywhere}
+html body .tlk{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline;margin:6px 0 10px;font-size:15px}html body .tlk span{color:var(--dim)}html body .tlk .lnk,html body .lg .lnk{font-size:inherit;padding:0;text-align:left}
 
 </style>
 </head>
@@ -987,7 +1018,7 @@ html body .bmwhy p{margin:0;flex:1 1 260px;font-size:16px}
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" aria-label="Topics" hidden><nav class="rail" id="rail"></nav></aside>
 <div class="wrap"><main id="main" tabindex="-1"><noscript><div class="card"><h1>After you press Run</h1><p class="big">This course runs in your browser and needs JavaScript. Please turn JavaScript on and reload the page.</p></div></noscript></main></div>
-<footer>Version 2.3. Runs in your browser. No tracking. The language design is from Crafting Interpreters by Robert Nystrom. <a href="#/about" id="abl">About this site</a></footer>
+<footer>Version 2.4. Runs in your browser. No tracking. The language design is from Crafting Interpreters by Robert Nystrom. <a href="#/about" id="abl">About this site</a></footer>
 <script>
 // ==== src/engine/scanner.js
 // ENGINE. Scanner: source text -> tokens. Also the keyword renaming table (Customize). Pure JS, no DOM.
@@ -2282,7 +2313,7 @@ function wsHTML(){return`<div class="wsx" id="wsx">
 </div>`}
 // Wire the controls once the workspace HTML is on the page. starter() gives the "Reset code" program.
 function wsWire(starterFn){mountEditor($('#wsx'),L=>{lineLock=true;$('#xl').value=L;showLine()});
- const s=$('#src');let d;s.addEventListener('input',()=>{clearTimeout(d);d=setTimeout(()=>{if(!cardProg){codes[ci]=s.value;persist()}recompute();WS.onEdit&&WS.onEdit()},250)});
+ const s=$('#src');let d;s.addEventListener('input',()=>{clearTimeout(d);d=setTimeout(()=>{if(!cardProg){codes[ci]=s.value;persist()}if(!document.contains(s))return;recompute();WS.onEdit&&WS.onEdit()},250)});
  $('#run').onclick=()=>{$('#run').classList.remove('pulse');stop();if(!P){draw();return}lineLock=false;toPos(R.log.length-1);award('ran')};
  $('#stp').onclick=()=>{$('#stp').classList.remove('pulse');stop();lineLock=false;move(1)};
  $('#bk').onclick=()=>{stop();lineLock=false;move(-1)};
@@ -2571,7 +2602,7 @@ function wireCard(i,k,c,el){const p=lp(i),T=c.t,fb=el.querySelector('.cf'),mark=
 function footLabel(i){const C=lessonCards(i),b=$('#cnx');if(LK!==C.length-1){b.textContent='Continue';return}const nx=nxi(i);b.textContent=!lp(i).fin?'Finish the topic':nx>=0?`Next: Topic ${nx+1} \u203A`:'Open Practice \u203A'}
 function finishTopic(i,k){const q=lp(i);if(!q.fin){q.fin=true;XP+=50;saveLP();Store.event('lesson',{l:i});xpShow(50)}done1(i,k,XPC.recap);const f=$('#fin');if(f){f.innerHTML=finHTML(i);burst(f);f.scrollIntoView({behavior:'smooth',block:'nearest'})}footLabel(i);rail()}
 function finHTML(i){const s=stars(i),nx=nxi(i);return`<div class="lc"><div class="stars" aria-label="${s} of 3 stars">${[0,1,2].map(j=>`<span class="${j<s?'on':''}">★</span>`).join('')}</div><h4>Topic ${i+1} complete</h4>
-<p class="dm">${XP} XP in all${STREAK.n?`. ${STREAK.n}-day streak`:''}. One star for finishing, one for every question right the first time, one for tasks done without "Show me".</p>${CH[i].id==='add'?'<p class="fnx"><button type="button" class="lnk" id="finbm">Now run the instructions yourself: play Be the machine</button></p>':''}${nx>=0?`<p class="fnx">Next: <b>Topic ${nx+1}, ${esc(CH[nx].n)}</b>. ${esc(CH[nx].q)}</p>`:'<p class="fnx">That was the last topic. You finished the course.</p>'}</div>`}
+<p class="dm">${XP} XP in all${STREAK.n?`. ${STREAK.n}-day streak`:''}. One star for finishing, one for every question right the first time, one for tasks done without "Show me".</p>${nx>=0?`<p class="fnx">Next: <b>Topic ${nx+1}, ${esc(CH[nx].n)}</b>. ${esc(CH[nx].q)}</p>`:'<p class="fnx">That was the last topic. You finished the course.</p>'}${nextUpHTML(i)}</div>`}
 // Left and right arrow keys move between cards when the learner is not typing.
 document.addEventListener('keydown',e=>{if(document.body.dataset.view!=='l'||e.altKey||e.ctrlKey||e.metaKey||e.shiftKey)return;const t=e.target,tag=t&&t.tagName;if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(t&&t.isContentEditable))return;
  if(e.key==='ArrowRight'){e.preventDefault();$('#cnx')&&!$('#cnx').hidden&&$('#cnx').click()}else if(e.key==='ArrowLeft'&&LK>0){e.preventDefault();showCard(ci,LK-1)}});
@@ -2581,13 +2612,12 @@ function rail(){progText();const r=$('#rail');if(!r)return;
  r.innerHTML=`<div class="rh">Topics</div>`+PARTS.map(([t,d,ids])=>`<div class="rpart">${esc(t)}</div>`+ids.map(id=>row(CH.findIndex(c=>c.id===id))).join('')).join('');
  r.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{drawer(false);setView('l',+b.dataset.i)})}
 
-document.addEventListener('click',e=>{if(e.target.closest('#finbm'))setView('b')});
 
 // ==== src/ui/practice.js
 // UI. Practice: the playground. Samples on the left, the full workspace on the right. Change the language opens Customize.
 function practice(i){ci=i;navActive('p');document.body.dataset.view='p';cardProg=null;lineLock=false;
  $('#main').innerHTML=`<div class="ls pr" id="ls"><section class="cp" aria-label="Samples"><div class="cph"><div class="kicker">Practice</div><h2>Write your own program</h2><p class="dm">Write anything in the editor, or open a sample. Press Run, then Next to see how it ran.</p>
-<div class="seg ptabs"><button aria-pressed="true" type="button">Samples</button><button type="button" id="pbtm" aria-pressed="false">Be the machine</button><button type="button" id="pcust" aria-pressed="false">Change the language</button></div><button class="btn sm" id="rback" type="button" ${codes.own?'':'hidden'}>Back to my code</button> <button class="btn sm" id="pshare" type="button" title="Copy a link that opens this code">Copy link to this code</button><span class="dm" id="pshm" aria-live="polite"></span></div>
+<div class="seg ptabs"><button aria-pressed="true" type="button">Samples</button><button type="button" id="pbtm" aria-pressed="false">Be the machine</button><button type="button" id="pcust" aria-pressed="false">Change the language</button></div><button class="btn sm" id="rback" type="button" ${codes.own?'':'hidden'}>Back to my code</button> <button class="btn sm" id="pshare" type="button" title="Copy a link that opens this code">Copy link to this code</button> <button class="btn sm" type="button" data-go="own" title="Be the machine, My code: you choose the pile after each instruction">Play it as the machine</button><span class="dm" id="pshm" aria-live="polite"></span></div>
 <div class="cards" id="plist"><div id="rinfo"></div><div class="rc">${RC.map((r,k)=>`<button class="rcb" type="button" data-k="${k}"><small>${r.g}</small><b>${esc(r.t)}</b><span>${esc(r.w)}</span></button>`).join('')}</div></div></section>
 <section class="wsp" aria-label="Workspace">${wsHTML()}</section></div>`;
  wsWire(()=>starter(i));$('#src').value=codes[i]!==undefined?codes[i]:starter(i);recompute();
@@ -2631,6 +2661,37 @@ const BTMHOW=['For each instruction, you choose the pile after it, from 3 option
 const BTMNO={GET_LOCAL:'a var inside { } or for (var …)',SET_LOCAL:'a var inside { } or for (var …)',CLOSURE:'a function (fun)',CALL:'a function call, such as clock()',GET_UPVALUE:'a function (fun)',SET_UPVALUE:'a function (fun)',CLOSE_UPVALUE:'a function (fun)',
  CLASS:'a class',METHOD:'a class',INHERIT:'a class',GET_PROPERTY:'an object',SET_PROPERTY:'an object',INVOKE:'an object',GET_SUPER:'a class',SUPER_INVOKE:'a class'};
 
+// ==== src/content/links.js
+// CONTENT. How the parts of the site connect. Nothing new here: each entry points to a part that already exists.
+// NEXTUP: after a topic, the places that use the same idea. A sample is linked only after every feature it uses is taught.
+//   m: Be the machine levels (0-based), s: Practice samples (titles in RC), r: Reference pages (ids in GUIDE, or 'more'),
+//   w: Change the language.
+const NEXTUP={
+ first:{r:['syntax']},
+ tok:{w:1},
+ prec:{m:[1,2,3]},
+ byte:{r:['instructions']},
+ add:{m:[0]},
+ vars:{m:[4,6]},
+ dec:{m:[5]},
+ loop:{s:['Countdown','Times table']},
+ fun:{s:['Sum to n','Even or odd','Powers']},
+ clos:{r:['more']},
+ cls:{r:['more']},
+ err:{r:['glossary']},
+ opt:{r:['instructions']}};
+// Be the machine: the topic each level practises, and the levels grouped by how hard they are.
+const BTMTOPIC=['add','prec','prec','prec','vars','dec','vars'];
+const BTMDIFF=[['Easy',[0,1]],['Medium',[2,3,4]],['Challenge',[5,6]]];
+// Short programs to try in My code, easiest first. Each one can be played (checked by tests/machine_check.py).
+const BTMTRY=[
+ {d:'Easy',t:'Take away',p:'print 9 - 4;'},
+ {d:'Easy',t:'Join two words',p:'print "good " + "morning";'},
+ {d:'Medium',t:'Brackets first',p:'print (1 + 2) * 5;'},
+ {d:'Medium',t:'A price',p:'var price = 20;\nprint price * 3;'},
+ {d:'Challenge',t:'The bigger one',p:'var a = 4;\nvar b = 9;\nif (a > b) print a; else print b;'},
+ {d:'Challenge',t:'Count to 2',p:'var n = 0;\nwhile (n < 2) n = n + 1;\nprint n;'}];
+
 // ==== src/ui/machine.js
 // UI. "Be the machine" (view 'b'): the learner plays the virtual machine. The real engine runs the level's program;
 // for every instruction the learner picks what the pile looks like afterwards. Wrong picks are explained by the rule.
@@ -2661,32 +2722,42 @@ function bmOwn(){const pi=CH.findIndex(c=>c.pg),src=codes[pi]!==undefined?codes[
   else if(D.steps.length>BMMAX)why=`Your code runs for ${D.steps.length} steps. Be the machine plays up to ${BMMAX}. Try a loop that goes round fewer times.`}
  BM={n:-1,own:true,k:0,right:0,miss:false,D,src,done:false,why};bmDraw()}
 function bmDraw(){const L=BM.own?{t:'Your own code',tip:''}:BTM[BM.n],D=BM.D,S=D&&D.steps,st=S&&S[BM.k],N=S?S.length:0;
- const levels=`<div class="bmlv" role="tablist" aria-label="Levels">${BTM.map((l,j)=>`<button type="button" data-lv="${j}" ${j===BM.n?'aria-current="true"':''} title="${esc(l.t)}">${BMB[j]!==undefined?'✓ ':''}${j+1}</button>`).join('')}<button type="button" data-lv="own" ${BM.own?'aria-current="true"':''} title="Play the code in your Practice editor">My code</button></div>`;
+ const lvb=j=>`<button type="button" data-lv="${j}" ${j===BM.n?'aria-current="true"':''}>${BMB[j]!==undefined?'<span class="ok">✓</span> ':''}${j+1}. ${esc(BTM[j].t)}</button>`;
+ const levels=`<div class="bmlv" role="group" aria-label="Levels">${BTMDIFF.map(([d,js])=>`<div class="bmgr"><span class="bmgl">${d}</span>${js.map(lvb).join('')}</div>`).join('')}<div class="bmgr"><span class="bmgl">Your code</span><button type="button" data-lv="own" ${BM.own?'aria-current="true"':''}>My code</button></div></div>`;
+ const ti=CH.findIndex(c=>c.id==='add');
  const head=`<header class="card bmh"><div class="seg ptabs"><button type="button" id="bms" aria-pressed="false">Samples</button><button type="button" aria-pressed="true">Be the machine</button><button type="button" id="bmc" aria-pressed="false">Change the language</button></div>
-<h2>Be the machine</h2><p class="dm">You are the virtual machine. For each instruction, choose what the pile looks like after it.</p>${levels}${BM.own&&BM.why?`<div class="bmwhy" role="status"><p>${esc(BM.why)}</p><button type="button" class="btn pri" id="bmtp">Open Practice</button></div>`:''}${bmLimits()}</header>`;
- if(BM.own&&BM.why){$('#main').innerHTML=`<div class="bm">${head}</div>`;$('#bmtp').onclick=()=>setView('p');bmWire();return}
+<h2>Be the machine</h2><p class="bmint">You play the virtual machine from <button type="button" class="lnk" data-go="topic:add">Topic ${ti+1}, ${esc(CH[ti].n)}</button>. It runs a program one instruction at a time. You choose what the pile looks like after each one.</p>${levels}${BM.own&&BM.why?`<div class="bmwhy" role="status"><p>${esc(BM.why)}</p><button type="button" class="btn pri" id="bmtp">Open Practice</button></div>`:''}${bmLimits()}</header>`;
+ const tries=BM.own?bmTries():'';
+ if(BM.own&&BM.why){$('#main').innerHTML=`<div class="bm">${head}${tries}</div>`;$('#bmtp').onclick=()=>setView('p');bmWire();return}
  if(BM.done){const best=BMB[BM.n],all=BM.right===N,stars=all?3:BM.right>=Math.ceil(N*.8)?2:1,nx=!BM.own&&BM.n<BTM.length-1;
   $('#main').innerHTML=`<div class="bm">${head}<section class="card bmend"><div class="stars lg">${[0,1,2].map(j=>`<span class="${j<stars?'on':''}">★</span>`).join('')}</div><h3>${BM.own?'Done: your own code':`Level ${BM.n+1} done: ${esc(L.t)}`}</h3>
 <p>You got <b>${BM.right} of ${N}</b> instructions right the first time. The program printed <b>${esc(D.out.join(', '))||'nothing'}</b>.</p><p class="dm">${all?'You ran this program exactly like the real machine.':'Play it again to get every instruction right the first time.'}${BM.own?' Your own code is for practice: it gives no XP, and no score is kept.':''}</p>
-<div class="bmbt"><button type="button" class="btn" id="bmag">Play again</button><button type="button" class="btn" id="bmw">Watch the real machine run it</button>${nx?`<button type="button" class="btn pri" id="bmnx">Level ${BM.n+2}: ${esc(BTM[BM.n+1].t)} ›</button>`:''}</div></section></div>`;
+<div class="bmbt"><button type="button" class="btn" id="bmag">Play again</button><button type="button" class="btn" id="bmw">Watch the real machine run it</button>${nx?`<button type="button" class="btn pri" id="bmnx">Level ${BM.n+2}: ${esc(BTM[BM.n+1].t)} ›</button>`:BM.own?'':'<button type="button" class="btn pri" data-go="own">Now try My code ›</button>'}</div></section>${tries}</div>`;
   $('#bmag').onclick=()=>machine(BM.own?'own':BM.n);$('#bmw').onclick=()=>{cardProg=null;goPG(BM.src)};if(nx)$('#bmnx').onclick=()=>machine(BM.n+1);bmWire();burst($('.bmend'));return}
  const opts=shuf([{s:st.s1,ok:1},...st.wrong.map(s=>({s}))],(BM.n+2)*31+BM.k*7+3);
  $('#main').innerHTML=`<div class="bm">${head}<div class="bmg">
-<section class="card bml"><div class="lb">${BM.own?'Your own code':`Level ${BM.n+1}: ${esc(L.t)}`}</div><pre class="bmcode">${BM.src.split('\n').map((l,j)=>`<span class="${j+1===st.line?'on':''}">${esc(l)||' '}</span>`).join('')}</pre>
+<section class="card bml"><div class="lb">${BM.own?'Your own code':`Level ${BM.n+1}: ${esc(L.t)}`}</div>${BM.own?'':(t=>t<0?'':`<p class="bmfrom">Practises <button type="button" class="lnk" data-go="topic:${CH[t].id}">Topic ${t+1}, ${esc(CH[t].n)}</button></p>`)(CH.findIndex(c=>c.id===BTMTOPIC[BM.n]))}<pre class="bmcode">${BM.src.split('\n').map((l,j)=>`<span class="${j+1===st.line?'on':''}">${esc(l)||' '}</span>`).join('')}</pre>
 <div class="lb">Instructions</div><ol class="bmins">${D.code.map((c,j)=>`<li class="${j===st.i?'on':''}"><code>${c.op}</code>${c.op==='CONSTANT'?' '+esc(S2(D.K[c.arg])):c.nm?' '+esc(c.nm):''}</li>`).join('')}</ol>
 <div class="lb">Shelf (global variables)</div><p class="bmsh">${Object.keys(st.G).filter(g=>!(LIBG&&g in LIBG)).map(g=>`${esc(g)} = ${esc(S2(st.G[g]))}`).join(', ')||'<i class="dm">empty</i>'}</p>
 <div class="lb">Screen</div><pre class="bmscr">${esc(st.o.join('\n'))||' '}</pre></section>
 <section class="card bmq"><div class="bmpr"><span>Instruction ${BM.k+1} of ${N}</span><span class="bar"><i style="width:${Math.round(100*BM.k/N)}%"></i></span></div>
 <div class="bmnow"><div><div class="lb">The pile now</div>${bmPile(st.s0)}</div><div class="bmar" aria-hidden="true">→</div><div class="bmop"><div class="lb">Next instruction</div><code>${st.op}</code><p>${esc(st.rule)}</p></div></div>
 <h3>What is on the pile after it?</h3><div class="bmopts" id="bmo">${opts.map((o,j)=>`<button type="button" class="bmo" data-ok="${o.ok?1:0}" aria-label="Option ${j+1}: ${o.s.length?esc(o.s.slice().reverse().map(S2).join(', top to bottom ')):'empty'}"><small>${j+1}</small>${bmPile(o.s)}</button>`).join('')}</div>
-<div class="bmfb" id="bmfb" aria-live="polite"><p class="dm">The top of the pile is drawn at the top. Keys 1, 2 and 3 choose an option.${BM.k?'':' '+esc(L.tip)}</p></div></section></div></div>`;
+<div class="bmfb" id="bmfb" aria-live="polite"><p class="dm">The top of the pile is drawn at the top. Keys 1, 2 and 3 choose an option.${BM.k?'':' '+esc(L.tip)}</p></div></section></div>${tries}</div>`;
  bmWire();document.querySelectorAll('.bmo').forEach(b=>b.onclick=()=>bmPick(b))}
 // The limits, stated in full. The first line is always shown. The lists open on My code, where they matter most.
 function bmLimits(){const li=a=>a.map(x=>`<li>${esc(x)}</li>`).join('');
  return`<details class="bmlim"${BM.own?' open':''}><summary><b>It can play:</b> numbers, strings, global variables, if, while and print, up to ${BMMAX} steps. <b>Not yet:</b> local variables, functions and classes. <span class="bmmore">Details</span></summary>
 <div class="bmlg"><div><h4>\u2713 It can play</h4><ul>${li(BTMCAN)}<li>Up to ${BMMAX} steps</li></ul></div><div><h4>\u2717 It cannot play yet</h4><ul>${li(BTMNOT)}</ul></div></div>
 <h4>How it works</h4><ul>${li(BTMHOW)}</ul></details>`}
-function bmWire(){$('#bms').onclick=()=>setView('p');$('#bmc').onclick=()=>setView('w');document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>machine(b.dataset.lv==='own'?'own':+b.dataset.lv))}
+// Short programs to try in My code. Play it puts one in the Practice editor and plays it; Edit in Practice opens it there.
+// Code already in the editor is kept: Practice shows "Back to my code".
+function bmTries(){return`<section class="card bmtry"><h3>Try one of these</h3><p class="dm">Short programs that Be the machine can play, easiest first. Play one, or change it in Practice and play your version.</p>
+<ol>${BTMTRY.map((x,k)=>`<li><div><span class="bmd ${x.d.toLowerCase()}">${x.d}</span> <b>${esc(x.t)}</b></div><pre>${esc(rw(x.p,{},LEX))}</pre><div class="bmbt"><button type="button" class="btn sm pri" data-try="${k}">Play it</button><button type="button" class="btn sm" data-tryed="${k}">Edit in Practice</button></div></li>`).join('')}</ol></section>`}
+function bmTake(k){const pi=CH.findIndex(c=>c.pg),cur=codes[pi],src=rw(BTMTRY[k].p,{},LEX);
+ if(cur!==undefined&&cur!==starter(pi)&&!BTMTRY.some(x=>rw(x.p,{},LEX)===cur)&&!RC.some(x=>rw(x.p,{},LEX)===cur))codes.own=cur;codes[pi]=src;persist();return src}
+function bmWire(){document.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{bmTake(+b.dataset.try);machine('own');scrollTo(0,0)});
+ document.querySelectorAll('[data-tryed]').forEach(b=>b.onclick=()=>goPG(bmTake(+b.dataset.tryed)));$('#bms').onclick=()=>setView('p');$('#bmc').onclick=()=>setView('w');document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>machine(b.dataset.lv==='own'?'own':+b.dataset.lv))}
 function bmPick(b){const st=BM.D.steps[BM.k],fb=$('#bmfb');if(b.disabled)return;
  if(b.dataset.ok==='1'){if(!BM.miss)BM.right++;document.querySelectorAll('.bmo').forEach(x=>x.disabled=true);b.classList.add('ok');
   fb.innerHTML=`<p class="fb ok"><b>Right.</b> ${esc(st.say)}</p><button type="button" class="btn pri" id="bmgo">${BM.k<BM.D.steps.length-1?'Next instruction ›':'Finish'}</button>`;$('#bmgo').onclick=bmNext;$('#bmgo').focus()}
@@ -3404,8 +3475,8 @@ function bank(u){const ids=TUNITS.find(x=>x[0]===u)[3],seen=new Set(),out=[];
 // A fixed shuffle from a seed, so a test can be reviewed in the same order it was taken.
 function shuf(a,seed){const r=a.slice();let s=seed||1;for(let i=r.length-1;i>0;i--){s=(s*9301+49297)%233280;const j=Math.floor(s/233280*(i+1));[r[i],r[j]]=[r[j],r[i]]}return r}
 function tests(){stop();navActive('t');document.body.dataset.view='t';$('.wrap').classList.add('ws');
- const row=([u,t,d])=>{const r=tr(u),qs=bank(u),ps=PROBLEMS.filter(p=>p.unit===u),solved=ps.filter(p=>r.code[p.id]).length,q=r.quiz;
-  return`<section class="card tu"><h3>${esc(t)}</h3><p class="dm">${esc(d)}</p><div class="trw">
+ const row=([u,t,d,ids])=>{const r=tr(u),qs=bank(u),ps=PROBLEMS.filter(p=>p.unit===u),solved=ps.filter(p=>r.code[p.id]).length,q=r.quiz;
+  return`<section class="card tu"><h3>${esc(t)}</h3><p class="dm">${esc(d)}</p><p class="tlk"><span>Revise:</span> ${ids.map(id=>{const j=CH.findIndex(c=>c.id===id);return j<0?'':`<button type="button" class="lnk" data-go="topic:${id}">${lp(j).fin?'\u2713 ':''}${j+1}. ${esc(CH[j].n)}</button>`}).join(' ')}</p><div class="trw">
 <div class="tbx"><b>Quiz test</b><span class="dm">${Math.min(QN,qs.length)} questions, about 10 minutes. Pass mark: ${QPASS} of ${Math.min(QN,qs.length)}.</span>${q?`<span class="tsc${q.best>=QPASS?' ok':''}">Best: ${q.best} of ${q.n}${q.best>=QPASS?', passed':''}</span>`:''}<button class="btn pri" data-quiz="${u}" type="button">${q?'Take it again':'Start'}</button></div>
 <div class="tbx"><b>Coding test</b><span class="dm">${ps.length} problems. Write each one, then Submit to run the hidden checks.</span>${solved?`<span class="tsc${solved===ps.length?' ok':''}">Solved: ${solved} of ${ps.length}</span>`:''}<div class="pl">${ps.map(p=>`<button class="btn${r.code[p.id]?' done':''}" data-prob="${p.id}" type="button">${r.code[p.id]?'✓ ':''}${esc(p.t)}</button>`).join('')}</div></div></div></section>`};
  $('#main').innerHTML=`<section class="card"><h2>Tests</h2><p class="lead">Check what you can do. A test does not tell you the answer until the end. Your best scores are kept on this device.</p></section>${TUNITS.map(row).join('')}`;
@@ -3465,8 +3536,9 @@ function profile(){stop();navActive('u');document.body.dataset.view='u';$('.wrap
  $('#main').innerHTML=`${accCard()||'<span id="accslot"></span>'}<section class="card"><h2>Your progress</h2><label class="pname">Your name <input id="pnm" type="text" maxlength="40" value="${esc(nm)}" placeholder="Type your name" autocomplete="name"></label><p class="dm">${Acc.name?'This name is printed on your certificate.':'Kept only on this device. Use Settings, Save to file, to move your progress to another computer.'}</p></section>
 <section class="card stats"><div><b>${XP}</b><span>XP</span></div><div><b>${level()}</b><span>Level</span></div><div><b>${STREAK.n||0}</b><span>Day streak</span></div><div><b>${fin} of ${L.length}</b><span>Topics finished</span></div></section>
 ${xpHow()}
-${certHTML(fin,L.length,nm)}<section class="card"><h3>Topics</h3><table class="lg"><tr><th>Topic</th><th>Done</th><th>Stars</th></tr>${L.map(([c,i])=>`<tr><td>${i+1}. ${esc(c.n)}</td><td>${lessonPct(i)}%</td><td><span class="stars sm" aria-label="${stars(i)} of 3 stars">${[0,1,2].map(j=>`<span class="${j<stars(i)?'on':''}">★</span>`).join('')}</span></td></tr>`).join('')}</table><p class="dm">${st} of ${L.length*3} stars. One for every question right the first time, one for tasks done without Show me, one for finishing.</p></section>
+${certHTML(fin,L.length,nm)}<section class="card"><h3>Topics</h3><table class="lg"><tr><th>Topic</th><th>Done</th><th>Stars</th></tr>${L.map(([c,i])=>`<tr><td><button type="button" class="lnk" data-go="topic:${c.id}">${i+1}. ${esc(c.n)}</button></td><td>${lessonPct(i)}%</td><td><span class="stars sm" aria-label="${stars(i)} of 3 stars">${[0,1,2].map(j=>`<span class="${j<stars(i)?'on':''}">★</span>`).join('')}</span></td></tr>`).join('')}</table><p class="dm">${st} of ${L.length*3} stars. One for every question right the first time, one for tasks done without Show me, one for finishing.</p></section>
 <section class="card"><h3>Tests</h3><table class="lg"><tr><th>Unit</th><th>Quiz test (best)</th><th>Coding problems solved</th></tr>${qt}</table><button class="btn" type="button" id="pgt">Go to Tests</button></section>
+<section class="card"><h3>Be the machine</h3><table class="lg"><tr><th>Level</th><th>Right the first time</th></tr>${BTM.map((l,j)=>`<tr><td><button type="button" class="lnk" data-go="m:${j}">${j+1}. ${esc(l.t)}</button></td><td>${BMB[j]===undefined?'Not played':`${BMB[j]} of ${bmSteps(rw(l.p,{},LEX)).steps.length}`}</td></tr>`).join('')}</table><p class="dm">${BTM.filter((l,j)=>BMB[j]!==undefined).length} of ${BTM.length} levels done. You earn 20 XP the first time you finish each level.</p></section>
 <section class="card"><h3>Badges</h3><div class="rc bdg">${BD.map(b=>`<div class="rcb${earned.has(b[0])?' on':''}"><small>${earned.has(b[0])?'Earned':'Not yet'}</small><b>${b[1]}</b><span>${b[2]}</span></div>`).join('')}</div></section>`;
  accWire();$('#pnm').oninput=e=>{Store.set('name',e.target.value.trim());const c=$('#certn');if(c)c.textContent=e.target.value.trim()||'Your name';};const cp=$('#certp');if(cp)cp.onclick=()=>print();$('#pgt').onclick=()=>setView('t');scrollTo(0,0)}
 
@@ -3485,6 +3557,25 @@ function atlas(tab){stop();if($('#src')&&!cardProg){codes[ci]=$('#src').value;pe
  if(tab==='f')h+=card(`<h3>What Lox can do</h3><p class="lead">Lox is a small language from the book Crafting Interpreters by Robert Nystrom. Press Try it to run an example in Practice.</p><table class="lg">${FEAT.map((f,i)=>`<tr><td><b>${f[0]}</b></td><td><code>${esc(f[1].split('\n')[0])}${f[1].includes('\n')?' ...':''}</code></td><td><button class="btn" data-try="${i}">Try it</button></td></tr>`).join('')}</table><div id="lnot"><h3 style="margin-top:16px">What Lox does not have</h3><p class="lead">No lists, no remainder operator (the samples build one called mod), no way to read input, no imports.</p></div>`);
  if(tab==='c')h+=card(`<h3>Interpreter or compiler?</h3><p class="lead">A compiler translates the whole program first, then runs it. An interpreter reads the program and runs it as it goes. Neither is better. Each has a cost.</p><table class="lg"><tr><th></th><th>Interpreter</th><th>Compiler</th></tr><tr><td>Starts</td><td>At once</td><td>After translating</td></tr><tr><td>Speed</td><td>Usually slower</td><td>Usually faster</td></tr><tr><td>Mistakes</td><td>Many found only when that line runs</td><td>Many found before running</td></tr><tr><td>Moving to another machine</td><td>Works where the interpreter works</td><td>Needs one build per machine</td></tr><tr><td>Good for</td><td>Learning, scripts, quick tests</td><td>Games, systems, heavy work</td></tr></table><p class="lead" style="margin-top:12px"><b>Where Lox sits.</b> clox does both. It compiles your code to bytecode, then a small virtual machine runs the bytecode. Python and Java work in a similar way.</p>`);
  $('#main').innerHTML=h;if(tab==='w')wmWire();$('#tog').onclick=()=>setView('g');$('#atabs').onclick=e=>{const b=e.target.closest('button');if(b)atlas(b.dataset.t)};document.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>goPG(rw(FEAT[+b.dataset.try][1],{},LEX)))}
+// ---- Links between the parts of the site ----
+// Any button with data-go opens a part that already exists:
+//   topic:<id>  m:<level>  own (Be the machine, My code)  s:<sample title>  r:<reference id or more>  w (Change the language)  t (Tests)
+const REFWHY={syntax:'All of Lox on one page.',instructions:'Every instruction, and what it does to the pile.',glossary:'Every word used in the course, in plain English.',more:'Ten short examples, including closures and classes. Try any of them.'};
+const refName=id=>id==='more'?'What Lox can do':((GUIDE.find(g=>g.id===id)||{}).t||id);
+function goSample(t){const k=RC.findIndex(r=>r.t===t);if(k<0)return;setView('p');const b=document.querySelector(`#plist .rcb[data-k="${k}"]`);if(b){b.click();scrollTo(0,0)}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;const g=b.dataset.go,c=g.indexOf(':'),k=c<0?g:g.slice(0,c),v=c<0?'':g.slice(c+1);e.preventDefault();
+ const src=$('#src');if(src&&!cardProg){codes[ci]=src.value;persist()}   // keep what was just typed
+ if(k==='topic')location.hash='#/topic/'+v+'/read';else if(k==='m')setView('b',+v);else if(k==='own')setView('b','own');else if(k==='s')goSample(v);
+ else if(k==='r')location.hash=v==='more'?'#/reference/more':'#/reference/'+v;else if(k==='w')setView('w');else if(k==='t')setView('t')});
+// "Keep going" after a topic: the places that use the same idea (from NEXTUP), and the test once its topics are all done.
+function nextUpHTML(i){const id=CH[i].id,N=NEXTUP[id]||{},out=[],it=(go,kind,title,why)=>out.push(`<button type="button" class="nxu" data-go="${esc(go)}"><small>${kind}</small><b>${esc(title)}</b><span>${esc(why)}</span></button>`);
+ (N.m||[]).forEach(n=>it('m:'+n,'Be the machine',`Level ${n+1}: ${BTM[n].t}`,'Run this idea yourself, one instruction at a time.'));
+ (N.s||[]).forEach(t=>{const r=RC.find(x=>x.t===t);if(r)it('s:'+t,'Practice sample',t,r.w)});
+ if(N.w)it('w','Change the language','Rename a keyword','Then watch the scanner read your new word.');
+ (N.r||[]).forEach(r=>it('r:'+r,'Reference',refName(r),REFWHY[r]||'Look it up while you learn.'));
+ const u=TUNITS.find(x=>x[3].includes(id));
+ if(u&&u[3].every(t=>{const j=CH.findIndex(c=>c.id===t);return j>=0&&lp(j).fin}))it('t','Test',u[1],'You finished every topic in this group. Test yourself.');
+ return out.length?`<div class="nxup"><h4>Keep going</h4><div class="nxg">${out.join('')}</div></div>`:''}
 
 // ==== src/ui/home.js
 // UI. Home: what this is, one button to start or continue, the learner's progress, and the course map (PARTS).
